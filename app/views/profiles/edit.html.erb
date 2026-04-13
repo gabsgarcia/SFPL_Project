@@ -1,0 +1,65 @@
+<%= content_for :head do %>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.css">
+<% end %>
+
+<div class="container mt-4">
+  <h1><%= current_user.first_name.present? ? "Edit profile" : "Complete your profile" %></h1>
+
+  <%= simple_form_for current_user, url: profile_path, method: :patch do |f| %>
+    <%= f.error_notification %>
+
+    <div class="form-inputs">
+      <%= f.input :first_name, required: true %>
+      <%= f.input :last_name, required: true %>
+
+      <div data-controller="photo-crop">
+        <div class="mb-3">
+          <label class="form-label">Profile photo (optional)</label>
+          <%= f.input :photo,
+                as: :file,
+                required: false,
+                label: false,
+                input_html: {
+                  accept: "image/*",
+                  data: {
+                    "photo-crop-target": "input",
+                    action: "change->photo-crop#fileSelected"
+                  }
+                } %>
+        </div>
+
+        <%# Cropper editor — hidden until a file is selected %>
+        <div data-photo-crop-target="container" class="d-none mb-3">
+          <p class="text-muted mb-1">Ajuste o recorte da sua foto:</p>
+          <div style="max-width: 400px; max-height: 400px; overflow: hidden;">
+            <img data-photo-crop-target="preview" src="" alt="preview" style="max-width: 100%; display: block;">
+          </div>
+          <div class="mt-2 d-flex gap-2">
+            <button type="button"
+                    class="btn btn-success btn-sm"
+                    data-action="click->photo-crop#crop">
+              Confirmar recorte
+            </button>
+            <button type="button"
+                    class="btn btn-outline-secondary btn-sm"
+                    data-action="click->photo-crop#cancel">
+              Cancelar
+            </button>
+          </div>
+        </div>
+
+        <% if current_user.photo.attached? %>
+          <div class="mt-2 d-flex align-items-center gap-2">
+            <p class="text-muted mb-0">Foto atual:</p>
+            <%= image_tag current_user.photo, class: "avatar avatar-large" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="form-actions mt-3">
+      <%= f.button :submit, "Save", class: "btn btn-primary" %>
+      <%= link_to "Cancel", profile_path, class: "btn btn-secondary ms-2" %>
+    </div>
+  <% end %>
+</div>
