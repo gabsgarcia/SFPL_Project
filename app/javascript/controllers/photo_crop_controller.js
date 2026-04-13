@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 import Cropper from "cropperjs"
 
 export default class extends Controller {
-  static targets = ["input", "preview", "container", "confirmBtn", "cancelBtn"]
+  static targets = ["input", "preview", "container"]
 
   connect() {
     this.cropper = null

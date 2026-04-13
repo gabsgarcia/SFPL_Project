@@ -51,7 +51,8 @@
         <% if current_user.photo.attached? %>
           <div class="mt-2 d-flex align-items-center gap-2">
             <p class="text-muted mb-0">Foto atual:</p>
-            <%= image_tag current_user.photo, class: "avatar avatar-large" %>
+            <%# user_avatar renders the current photo; "avatar-large" adds a bigger size variant %>
+            <%= user_avatar(current_user, class: "avatar-large") %>
           </div>
         <% end %>
       </div>

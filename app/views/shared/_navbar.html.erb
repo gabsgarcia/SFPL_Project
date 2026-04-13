@@ -18,7 +18,9 @@
             <%= link_to "Messages", "#", class: "nav-link" %>
           </li>
           <li class="nav-item dropdown">
-            <%= image_tag current_user.photo.attached? ? current_user.photo : "default_avatar.png", class: "avatar dropdown-toggle", id: "navbarDropdown", data: { bs_toggle: "dropdown" }, 'aria-haspopup': true, 'aria-expanded': false %>
+            <%# user_avatar renders the user's photo or default_avatar.png with the "avatar" class always applied.
+                Extra options (id, data-attributes) are passed through to the <img> tag for the Bootstrap dropdown. %>
+            <%= user_avatar(current_user, id: "navbarDropdown", class: "dropdown-toggle", data: { bs_toggle: "dropdown" }, 'aria-haspopup': true, 'aria-expanded': false) %>
             <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
               <%= link_to "Profile", profile_path, class: "dropdown-item" %>
               <%= link_to "Another action", "#", class: "dropdown-item" %>
