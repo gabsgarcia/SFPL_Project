@@ -48,6 +48,7 @@ gem "sassc-rails"
 gem "ruby_llm", "~> 1.2.0"
 gem "devise"
 gem "cloudinary"
+gem "active_storage_validations"
 
 group :development, :test do
   gem "dotenv-rails"
