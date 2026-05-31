@@ -1,0 +1,21 @@
+<% badge_class = {
+  "rascunho"       => "bg-secondary",
+  "documentos_ok"  => "bg-primary",
+  "agendado"       => "bg-info text-dark",
+  "vistoria_feita" => "bg-warning text-dark",
+  "processando"    => "bg-warning text-dark",
+  "em_revisao"     => "bg-info text-dark",
+  "concluido"      => "bg-success"
+}.fetch(pericia.status, "bg-secondary") %>
+
+<% label = {
+  "rascunho"       => "Rascunho",
+  "documentos_ok"  => "Documentos recebidos",
+  "agendado"       => "Agendado",
+  "vistoria_feita" => "Vistoria realizada",
+  "processando"    => "Processando",
+  "em_revisao"     => "Em revisão",
+  "concluido"      => "Concluído"
+}.fetch(pericia.status, pericia.status) %>
+
+<span class="badge <%= badge_class %>"><%= label %></span>

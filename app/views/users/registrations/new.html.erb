@@ -1,17 +1,17 @@
-<h2>Sign up</h2>
+<h2>Criar conta</h2>
 
 <%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
   <%= f.error_notification %>
 
   <div class="form-inputs">
-    <%= f.input :first_name, required: true %>
-    <%= f.input :last_name, required: true %>
+    <%= f.input :first_name, label: "Nome", required: true %>
+    <%= f.input :last_name, label: "Sobrenome", required: true %>
     <%= f.input :email,
                 required: true,
                 autofocus: true,
-                input_html: { autocomplete: "email" }%>
+                input_html: { autocomplete: "email" } %>
     <div class="mb-3" data-controller="password-visibility">
-      <%= f.label :password, class: "form-label" %>
+      <%= f.label :password, "Senha", class: "form-label" %>
       <div class="input-group">
         <%= f.password_field :password,
                               class: "form-control",
@@ -24,12 +24,12 @@
         </button>
       </div>
       <% if @minimum_password_length %>
-        <div class="form-text"><%= @minimum_password_length %> characters minimum</div>
+        <div class="form-text">Mínimo de <%= @minimum_password_length %> caracteres</div>
       <% end %>
     </div>
 
     <div class="mb-3" data-controller="password-visibility">
-      <%= f.label :password_confirmation, class: "form-label" %>
+      <%= f.label :password_confirmation, "Confirmar senha", class: "form-label" %>
       <div class="input-group">
         <%= f.password_field :password_confirmation,
                               class: "form-control",
@@ -42,11 +42,11 @@
         </button>
       </div>
     </div>
-    <%= f.input :photo, as: :file, required: false, label: "Profile photo (optional)" %>
+    <%= f.input :photo, as: :file, required: false, label: "Foto de perfil (opcional)" %>
   </div>
 
   <div class="form-actions">
-    <%= f.button :submit, "Sign up" %>
+    <%= f.button :submit, "Criar conta" %>
   </div>
 <% end %>
 

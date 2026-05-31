@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_13_143306) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_31_200005) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -40,6 +40,73 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_13_143306) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "laudo_sections", force: :cascade do |t|
+    t.boolean "aplicavel", default: true, null: false
+    t.string "codigo"
+    t.text "conteudo"
+    t.datetime "created_at", null: false
+    t.integer "ordem"
+    t.bigint "pericia_id", null: false
+    t.boolean "revisado", default: false, null: false
+    t.string "titulo"
+    t.datetime "updated_at", null: false
+    t.index ["pericia_id"], name: "index_laudo_sections_on_pericia_id"
+  end
+
+  create_table "pericia_documents", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "document_type"
+    t.string "nome_original"
+    t.bigint "pericia_id", null: false
+    t.boolean "processado", default: false, null: false
+    t.text "texto_extraido"
+    t.datetime "updated_at", null: false
+    t.index ["pericia_id"], name: "index_pericia_documents_on_pericia_id"
+  end
+
+  create_table "pericias", force: :cascade do |t|
+    t.date "admissao"
+    t.string "comarca"
+    t.datetime "created_at", null: false
+    t.datetime "data_pericia"
+    t.date "demissao"
+    t.string "funcao_reclamante"
+    t.integer "honorarios_salarios"
+    t.text "local_pericia"
+    t.string "numero_processo"
+    t.text "observacoes_perito"
+    t.string "reclamada_1"
+    t.string "reclamada_2"
+    t.string "reclamante"
+    t.string "regiao_trt"
+    t.string "status", default: "rascunho", null: false
+    t.boolean "tem_biologico", default: false, null: false
+    t.boolean "tem_calor", default: false, null: false
+    t.boolean "tem_eletricidade", default: false, null: false
+    t.boolean "tem_ergonomia", default: false, null: false
+    t.boolean "tem_inflamavel", default: false, null: false
+    t.boolean "tem_quimico", default: false, null: false
+    t.boolean "tem_ruido", default: false, null: false
+    t.string "tipo_pericia"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.string "vara"
+    t.index ["user_id"], name: "index_pericias_on_user_id"
+  end
+
+  create_table "quesito_respostas", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "numero", null: false
+    t.string "origem", null: false
+    t.bigint "pericia_id", null: false
+    t.text "resposta"
+    t.boolean "revisado", default: false, null: false
+    t.text "texto_quesito"
+    t.datetime "updated_at", null: false
+    t.index ["pericia_id", "origem", "numero"], name: "index_quesito_respostas_on_pericia_id_and_origem_and_numero", unique: true
+    t.index ["pericia_id"], name: "index_quesito_respostas_on_pericia_id"
   end
 
   create_table "solid_cable_messages", force: :cascade do |t|
@@ -200,6 +267,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_13_143306) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "laudo_sections", "pericias"
+  add_foreign_key "pericia_documents", "pericias"
+  add_foreign_key "pericias", "users"
+  add_foreign_key "quesito_respostas", "pericias"
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_claimed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_failed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade

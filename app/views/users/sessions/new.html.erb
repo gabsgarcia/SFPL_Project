@@ -1,4 +1,4 @@
-<h2>Log in</h2>
+<h2>Entrar</h2>
 
 <%= simple_form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
   <div class="form-inputs">
@@ -7,7 +7,7 @@
                 autofocus: true,
                 input_html: { autocomplete: "email" } %>
     <div class="mb-3" data-controller="password-visibility">
-      <%= f.label :password, class: "form-label" %>
+      <%= f.label :password, "Senha", class: "form-label" %>
       <div class="input-group">
         <%= f.password_field :password,
                               class: "form-control",
@@ -19,11 +19,11 @@
         </button>
       </div>
     </div>
-    <%= f.input :remember_me, as: :boolean if devise_mapping.rememberable? %>
+    <%= f.input :remember_me, label: "Lembrar-me", as: :boolean if devise_mapping.rememberable? %>
   </div>
 
   <div class="form-actions">
-    <%= f.button :submit, "Log in" %>
+    <%= f.button :submit, "Entrar" %>
   </div>
 <% end %>
 

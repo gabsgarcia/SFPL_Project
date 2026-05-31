@@ -1,17 +1,17 @@
-<h2>Edit <%= resource_name.to_s.humanize %></h2>
+<h2>Editar conta</h2>
 
 <%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put }) do |f| %>
   <%= f.error_notification %>
 
   <div class="form-inputs">
-    <%= f.input :email, required: true, autofocus: true %>
+    <%= f.input :email, label: "E-mail", required: true, autofocus: true %>
 
     <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
-      <p>Currently waiting confirmation for: <%= resource.unconfirmed_email %></p>
+      <p class="text-muted small">Aguardando confirmação para: <%= resource.unconfirmed_email %></p>
     <% end %>
 
     <div class="mb-3" data-controller="password-visibility">
-      <%= f.label :password, class: "form-label" %>
+      <%= f.label :password, "Nova senha", class: "form-label" %>
       <div class="input-group">
         <%= f.password_field :password,
                               class: "form-control",
@@ -22,11 +22,11 @@
           <i class="fa-solid fa-eye" data-password-visibility-target="icon"></i>
         </button>
       </div>
-      <div class="form-text">Leave it blank if you don't want to change it</div>
+      <div class="form-text">Deixe em branco para não alterar</div>
     </div>
 
     <div class="mb-3" data-controller="password-visibility">
-      <%= f.label :password_confirmation, class: "form-label" %>
+      <%= f.label :password_confirmation, "Confirmar nova senha", class: "form-label" %>
       <div class="input-group">
         <%= f.password_field :password_confirmation,
                               class: "form-control",
@@ -40,7 +40,7 @@
     </div>
 
     <div class="mb-3" data-controller="password-visibility">
-      <%= f.label :current_password, class: "form-label" %>
+      <%= f.label :current_password, "Senha atual", class: "form-label" %>
       <div class="input-group">
         <%= f.password_field :current_password,
                               class: "form-control",
@@ -52,17 +52,24 @@
           <i class="fa-solid fa-eye" data-password-visibility-target="icon"></i>
         </button>
       </div>
-      <div class="form-text">We need your current password to confirm your changes</div>
+      <div class="form-text">Informe sua senha atual para confirmar as alterações</div>
     </div>
   </div>
 
   <div class="form-actions">
-    <%= f.button :submit, "Update" %>
+    <%= f.button :submit, "Atualizar conta" %>
   </div>
 <% end %>
 
-<h3>Cancel my account</h3>
+<hr class="my-4">
 
-<div>Unhappy? <%= button_to "Cancel my account", registration_path(resource_name), data: { confirm: "Are you sure?", turbo_confirm: "Are you sure?" }, method: :delete %></div>
+<h3>Cancelar minha conta</h3>
+<p class="text-muted">Esta ação é irreversível. Todos os seus dados serão removidos.</p>
+<%= button_to "Cancelar minha conta", registration_path(resource_name),
+    data: { turbo_confirm: "Tem certeza? Esta ação não pode ser desfeita." },
+    method: :delete,
+    class: "btn btn-outline-danger btn-sm" %>
 
-<%= link_to "Back", :back %>
+<div class="mt-3">
+  <%= link_to "Voltar", :back, class: "btn btn-outline-secondary btn-sm" %>
+</div>

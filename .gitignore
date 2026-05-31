@@ -33,11 +33,15 @@
 # Ignore key files for decrypting credentials and more.
 /config/*.key
 
-
+# Arquivos gerados automaticamente — não versionar
+/app/assets/files_auto/
 # Ignore .env file containing credentials.
 .env*
 
 # Ignore Mac and Linux file system files
 *.swp
 .DS_Store
+
+# Metadados do Windows (Zone.Identifier criado ao baixar arquivos)
+*:Zone.Identifier
 .env*
