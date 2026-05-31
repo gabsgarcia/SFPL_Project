@@ -6,9 +6,19 @@
                 required: false,
                 autofocus: true,
                 input_html: { autocomplete: "email" } %>
-    <%= f.input :password,
-                required: false,
-                input_html: { autocomplete: "current-password" } %>
+    <div class="mb-3" data-controller="password-visibility">
+      <%= f.label :password, class: "form-label" %>
+      <div class="input-group">
+        <%= f.password_field :password,
+                              class: "form-control",
+                              data: { password_visibility_target: "input" },
+                              autocomplete: "current-password" %>
+        <button class="btn btn-outline-secondary" type="button"
+                data-action="click->password-visibility#toggle">
+          <i class="fa-solid fa-eye" data-password-visibility-target="icon"></i>
+        </button>
+      </div>
+    </div>
     <%= f.input :remember_me, as: :boolean if devise_mapping.rememberable? %>
   </div>
 
