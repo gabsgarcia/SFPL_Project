@@ -7,16 +7,39 @@
   <%= f.full_error :reset_password_token %>
 
   <div class="form-inputs">
-    <%= f.input :password,
-                label: "New password",
-                required: true,
-                autofocus: true,
-                hint: ("#{@minimum_password_length} characters minimum" if @minimum_password_length),
-                input_html: { autocomplete: "new-password" } %>
-    <%= f.input :password_confirmation,
-                label: "Confirm your new password",
-                required: true,
-                input_html: { autocomplete: "new-password" } %>
+    <div class="mb-3" data-controller="password-visibility">
+      <%= f.label :password, "New password", class: "form-label" %>
+      <div class="input-group">
+        <%= f.password_field :password,
+                              class: "form-control",
+                              data: { password_visibility_target: "input" },
+                              autocomplete: "new-password",
+                              autofocus: true,
+                              required: true %>
+        <button class="btn btn-outline-secondary" type="button"
+                data-action="click->password-visibility#toggle">
+          <i class="fa-solid fa-eye" data-password-visibility-target="icon"></i>
+        </button>
+      </div>
+      <% if @minimum_password_length %>
+        <div class="form-text"><%= @minimum_password_length %> characters minimum</div>
+      <% end %>
+    </div>
+
+    <div class="mb-3" data-controller="password-visibility">
+      <%= f.label :password_confirmation, "Confirm your new password", class: "form-label" %>
+      <div class="input-group">
+        <%= f.password_field :password_confirmation,
+                              class: "form-control",
+                              data: { password_visibility_target: "input" },
+                              autocomplete: "new-password",
+                              required: true %>
+        <button class="btn btn-outline-secondary" type="button"
+                data-action="click->password-visibility#toggle">
+          <i class="fa-solid fa-eye" data-password-visibility-target="icon"></i>
+        </button>
+      </div>
+    </div>
   </div>
 
   <div class="form-actions">

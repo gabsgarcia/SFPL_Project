@@ -10,17 +10,50 @@
       <p>Currently waiting confirmation for: <%= resource.unconfirmed_email %></p>
     <% end %>
 
-    <%= f.input :password,
-                hint: "leave it blank if you don't want to change it",
-                required: false,
-                input_html: { autocomplete: "new-password" } %>
-    <%= f.input :password_confirmation,
-                required: false,
-                input_html: { autocomplete: "new-password" } %>
-    <%= f.input :current_password,
-                hint: "we need your current password to confirm your changes",
-                required: true,
-                input_html: { autocomplete: "current-password" } %>
+    <div class="mb-3" data-controller="password-visibility">
+      <%= f.label :password, class: "form-label" %>
+      <div class="input-group">
+        <%= f.password_field :password,
+                              class: "form-control",
+                              data: { password_visibility_target: "input" },
+                              autocomplete: "new-password" %>
+        <button class="btn btn-outline-secondary" type="button"
+                data-action="click->password-visibility#toggle">
+          <i class="fa-solid fa-eye" data-password-visibility-target="icon"></i>
+        </button>
+      </div>
+      <div class="form-text">Leave it blank if you don't want to change it</div>
+    </div>
+
+    <div class="mb-3" data-controller="password-visibility">
+      <%= f.label :password_confirmation, class: "form-label" %>
+      <div class="input-group">
+        <%= f.password_field :password_confirmation,
+                              class: "form-control",
+                              data: { password_visibility_target: "input" },
+                              autocomplete: "new-password" %>
+        <button class="btn btn-outline-secondary" type="button"
+                data-action="click->password-visibility#toggle">
+          <i class="fa-solid fa-eye" data-password-visibility-target="icon"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="mb-3" data-controller="password-visibility">
+      <%= f.label :current_password, class: "form-label" %>
+      <div class="input-group">
+        <%= f.password_field :current_password,
+                              class: "form-control",
+                              data: { password_visibility_target: "input" },
+                              autocomplete: "current-password",
+                              required: true %>
+        <button class="btn btn-outline-secondary" type="button"
+                data-action="click->password-visibility#toggle">
+          <i class="fa-solid fa-eye" data-password-visibility-target="icon"></i>
+        </button>
+      </div>
+      <div class="form-text">We need your current password to confirm your changes</div>
+    </div>
   </div>
 
   <div class="form-actions">
