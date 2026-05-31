@@ -1,8 +1,7 @@
 <div class="container mt-4">
-  <h1>My Profile</h1>
+  <h1>Meu Perfil</h1>
 
   <div class="d-flex align-items-center gap-3 my-4">
-    <%# user_avatar handles the photo/fallback logic — no need for an if/else here %>
     <%= user_avatar(current_user) %>
     <div>
       <h4><%= current_user.first_name %> <%= current_user.last_name %></h4>
@@ -10,5 +9,5 @@
     </div>
   </div>
 
-  <%= link_to "Edit profile", edit_profile_path, class: "btn btn-primary" %>
+  <%= link_to "Editar perfil", edit_profile_path, class: "btn btn-primary" %>
 </div>

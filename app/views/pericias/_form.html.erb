@@ -1,0 +1,94 @@
+<%= simple_form_for pericia do |f| %>
+  <%= f.error_notification %>
+
+  <h5 class="mb-3">Dados do processo</h5>
+  <div class="row g-3 mb-4">
+    <div class="col-md-8">
+      <%= f.input :numero_processo, label: "Número do processo", placeholder: "Ex: 1001760-11.2025.5.02.0292" %>
+    </div>
+    <div class="col-md-4">
+      <%= f.input :tipo_pericia, label: "Tipo de perícia",
+          as: :select,
+          collection: [["Insalubridade", "insalubridade"], ["Periculosidade", "periculosidade"], ["Ambos", "ambos"]],
+          include_blank: "Selecione..." %>
+    </div>
+    <div class="col-md-4">
+      <%= f.input :vara, label: "Vara", placeholder: "Ex: 2ª Vara do Trabalho" %>
+    </div>
+    <div class="col-md-4">
+      <%= f.input :comarca, label: "Comarca", placeholder: "Ex: Franco da Rocha" %>
+    </div>
+    <div class="col-md-4">
+      <%= f.input :regiao_trt, label: "Região TRT", placeholder: "Ex: TRT 02ª Região" %>
+    </div>
+  </div>
+
+  <h5 class="mb-3">Partes</h5>
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <%= f.input :reclamante, label: "Reclamante" %>
+    </div>
+    <div class="col-md-6">
+      <%= f.input :funcao_reclamante, label: "Função do reclamante", placeholder: "Ex: auxiliar de limpeza" %>
+    </div>
+    <div class="col-md-6">
+      <%= f.input :reclamada_1, label: "Reclamada (1ª)" %>
+    </div>
+    <div class="col-md-6">
+      <%= f.input :reclamada_2, label: "Reclamada (2ª)", hint: "Opcional — preencha apenas se houver segunda reclamada" %>
+    </div>
+    <div class="col-md-3">
+      <%= f.input :admissao, label: "Admissão", as: :string, input_html: { type: "date" } %>
+    </div>
+    <div class="col-md-3">
+      <%= f.input :demissao, label: "Demissão", as: :string, input_html: { type: "date" }, hint: "Opcional" %>
+    </div>
+  </div>
+
+  <h5 class="mb-3">Agentes de risco identificados</h5>
+  <div class="row g-2 mb-4">
+    <div class="col-md-3">
+      <%= f.input :tem_ruido, label: "Ruído (Anexo 01 NR-15)", as: :boolean %>
+    </div>
+    <div class="col-md-3">
+      <%= f.input :tem_calor, label: "Calor (Anexo 03 NR-15)", as: :boolean %>
+    </div>
+    <div class="col-md-3">
+      <%= f.input :tem_quimico, label: "Agentes químicos (NR-15)", as: :boolean %>
+    </div>
+    <div class="col-md-3">
+      <%= f.input :tem_biologico, label: "Agentes biológicos (Anexo 14 NR-15)", as: :boolean %>
+    </div>
+    <div class="col-md-3">
+      <%= f.input :tem_eletricidade, label: "Eletricidade (NR-16)", as: :boolean %>
+    </div>
+    <div class="col-md-3">
+      <%= f.input :tem_inflamavel, label: "Inflamáveis (NR-16)", as: :boolean %>
+    </div>
+    <div class="col-md-3">
+      <%= f.input :tem_ergonomia, label: "Ergonomia (NR-17)", as: :boolean %>
+    </div>
+  </div>
+
+  <h5 class="mb-3">Visita pericial</h5>
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <%= f.input :data_pericia, label: "Data e hora da visita", as: :string, input_html: { type: "datetime-local" } %>
+    </div>
+    <div class="col-md-8">
+      <%= f.input :local_pericia, label: "Endereço da visita", as: :text, input_html: { rows: 2 } %>
+    </div>
+  </div>
+
+  <h5 class="mb-3">Observações internas</h5>
+  <div class="mb-4">
+    <%= f.input :observacoes_perito, label: "Observações do perito", as: :text,
+        input_html: { rows: 3 },
+        hint: "Notas internas — não aparecem no laudo" %>
+  </div>
+
+  <div class="d-flex gap-2">
+    <%= f.button :submit, class: "btn btn-primary" %>
+    <%= link_to "Cancelar", pericias_path, class: "btn btn-outline-secondary" %>
+  </div>
+<% end %>

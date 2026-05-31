@@ -1,0 +1,42 @@
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Minhas Perícias</h1>
+    <%= link_to "Nova Perícia", new_pericia_path, class: "btn btn-primary" %>
+  </div>
+
+  <% if @pericias.empty? %>
+    <div class="text-center py-5 text-muted">
+      <i class="fa-solid fa-folder-open fa-3x mb-3"></i>
+      <p>Nenhuma perícia criada ainda.</p>
+      <%= link_to "Criar primeira perícia", new_pericia_path, class: "btn btn-outline-primary" %>
+    </div>
+  <% else %>
+    <div class="row g-3">
+      <% @pericias.each do |pericia| %>
+        <div class="col-md-6 col-lg-4">
+          <div class="card h-100">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <h6 class="card-title mb-0"><%= pericia.numero_processo || "Nº não informado" %></h6>
+                <%= render "status_badge", pericia: pericia %>
+              </div>
+              <p class="card-text text-muted small mb-1">
+                <%= pericia.reclamante.presence || "Reclamante não informado" %>
+              </p>
+              <p class="card-text text-muted small">
+                <%= pericia.pericia_documents.count %> documento(s) &bull;
+                Criada <%= time_ago_in_words(pericia.created_at) %> atrás
+              </p>
+            </div>
+            <div class="card-footer bg-transparent d-flex gap-2">
+              <%= link_to "Ver", pericia, class: "btn btn-sm btn-outline-primary" %>
+              <%= link_to "Editar", edit_pericia_path(pericia), class: "btn btn-sm btn-outline-secondary" %>
+              <%= button_to "Remover", pericia, method: :delete, class: "btn btn-sm btn-outline-danger",
+                  form: { data: { turbo_confirm: "Tem certeza? Todos os documentos serão apagados." } } %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>

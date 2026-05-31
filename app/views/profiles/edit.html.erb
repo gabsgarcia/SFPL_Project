@@ -3,18 +3,18 @@
 <% end %>
 
 <div class="container mt-4">
-  <h1><%= current_user.first_name.present? ? "Edit profile" : "Complete your profile" %></h1>
+  <h1><%= current_user.first_name.present? ? "Editar perfil" : "Complete seu perfil" %></h1>
 
   <%= simple_form_for current_user, url: profile_path, method: :patch do |f| %>
     <%= f.error_notification %>
 
     <div class="form-inputs">
-      <%= f.input :first_name, required: true %>
-      <%= f.input :last_name, required: true %>
+      <%= f.input :first_name, label: "Nome", required: true %>
+      <%= f.input :last_name, label: "Sobrenome", required: true %>
 
       <div data-controller="photo-crop">
         <div class="mb-3">
-          <label class="form-label">Profile photo (optional)</label>
+          <label class="form-label">Foto de perfil (opcional)</label>
           <%= f.input :photo,
                 as: :file,
                 required: false,
@@ -28,7 +28,6 @@
                 } %>
         </div>
 
-        <%# Cropper editor — hidden until a file is selected %>
         <div data-photo-crop-target="container" class="d-none mb-3">
           <p class="text-muted mb-1">Ajuste o recorte da sua foto:</p>
           <div style="max-width: 400px; max-height: 400px; overflow: hidden;">
@@ -52,7 +51,6 @@
         <% if current_user.photo.attached? %>
           <div class="mt-2 d-flex align-items-center gap-2">
             <p class="text-muted mb-0">Foto atual:</p>
-            <%# user_avatar renders the current photo; "avatar-large" adds a bigger size variant %>
             <%= user_avatar(current_user, class: "avatar-large") %>
           </div>
         <% end %>
@@ -60,8 +58,8 @@
     </div>
 
     <div class="form-actions mt-3">
-      <%= f.button :submit, "Save", class: "btn btn-primary" %>
-      <%= link_to "Cancel", profile_path, class: "btn btn-secondary ms-2" %>
+      <%= f.button :submit, "Salvar", class: "btn btn-primary" %>
+      <%= link_to "Cancelar", profile_path, class: "btn btn-secondary ms-2" %>
     </div>
   <% end %>
 </div>
