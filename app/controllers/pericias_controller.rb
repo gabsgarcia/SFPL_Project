@@ -1,6 +1,6 @@
 class PericiasController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_pericia, only: [:show, :edit, :update, :destroy]
+  before_action :set_pericia, only: [:show, :edit, :update, :destroy, :review, :generate_laudo, :generate_pdf]
 
   def index
     @pericias = current_user.pericias.order(created_at: :desc)
@@ -36,6 +36,17 @@ class PericiasController < ApplicationController
   def destroy
     @pericia.destroy
     redirect_to pericias_path, notice: "Perícia removida."
+  end
+
+  def review
+  end
+
+  def generate_laudo
+    redirect_to @pericia, alert: "Geração de laudo disponível no Phase 4."
+  end
+
+  def generate_pdf
+    redirect_to @pericia, alert: "Geração de PDF disponível no Phase 6."
   end
 
   private
