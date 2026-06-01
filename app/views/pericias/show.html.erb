@@ -143,14 +143,19 @@
     <div class="card-body">
       <% if @pericia.laudo_sections.empty? %>
         <p class="text-muted mb-2">O laudo ainda não foi gerado.</p>
-        <% if @pericia.pericia_documents.any? %>
+        <% if @pericia.transcricao_limpa.present? && !@pericia.transcricao_revisada? %>
+          <div class="alert alert-warning py-2 mb-2">
+            Transcrição processada. Revise os dados antes de gerar o laudo.
+          </div>
+          <%= link_to "Revisar transcrição", review_transcricao_pericia_path(@pericia), class: "btn btn-warning btn-sm" %>
+        <% elsif @pericia.pronta_para_gerar_laudo? %>
           <%= button_to "Gerar laudo com IA",
                 generate_laudo_pericia_path(@pericia),
                 method: :post,
                 class: "btn btn-success btn-sm",
                 form: { data: { turbo_confirm: "Iniciar geração do laudo? Isso pode levar alguns minutos." } } %>
         <% else %>
-          <p class="text-muted small mb-0">Faça o upload dos documentos para habilitar a geração.</p>
+          <p class="text-muted small mb-0">Faça o upload dos documentos e da transcrição para habilitar a geração.</p>
         <% end %>
       <% else %>
         <% revisadas = @pericia.laudo_sections.aplicaveis.count(&:revisado?) %>

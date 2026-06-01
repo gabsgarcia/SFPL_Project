@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_31_200005) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_01_120001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -90,6 +90,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_31_200005) do
     t.boolean "tem_quimico", default: false, null: false
     t.boolean "tem_ruido", default: false, null: false
     t.string "tipo_pericia"
+    t.jsonb "transcricao_limpa"
+    t.boolean "transcricao_revisada", default: false, null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.string "vara"

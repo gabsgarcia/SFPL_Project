@@ -1,6 +1,6 @@
 class PericiasController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_pericia, only: [:show, :edit, :update, :destroy, :review, :generate_laudo, :generate_pdf]
+  before_action :set_pericia, only: [:show, :edit, :update, :destroy, :review, :review_transcricao, :update_transcricao, :generate_laudo, :generate_pdf]
 
   def index
     @pericias = current_user.pericias.order(created_at: :desc)
@@ -41,8 +41,35 @@ class PericiasController < ApplicationController
   def review
   end
 
+  def review_transcricao
+  end
+
+  def update_transcricao
+    dados = params.require(:transcricao).permit(
+      :rotina_trabalho, :frequencia_atividade_principal, :tempo_por_tarefa,
+      :tamanho_equipe, :tipo_lixo, :local_trabalho_descricao, :observacoes_adicionais,
+      :epis_utilizados, :assinou_ficha_epi, :sistema_rodizio, :coleta_lixo,
+      produtos_utilizados: [], epis_recebidos: [], areas_trabalhadas: []
+    ).to_h
+
+    dados["epis_utilizados"]   = dados["epis_utilizados"] == "1"
+    dados["assinou_ficha_epi"] = dados["assinou_ficha_epi"] == "1"
+    dados["sistema_rodizio"]   = dados["sistema_rodizio"] == "1"
+    dados["coleta_lixo"]       = dados["coleta_lixo"] == "1"
+    dados["tamanho_equipe"]    = dados["tamanho_equipe"].presence&.to_i
+
+    @pericia.update!(transcricao_limpa: dados, transcricao_revisada: true)
+    redirect_to @pericia, notice: "Transcrição revisada. Você já pode gerar o laudo."
+  end
+
   def generate_laudo
-    redirect_to @pericia, alert: "Geração de laudo disponível no Phase 4."
+    unless @pericia.pronta_para_gerar_laudo?
+      return redirect_to @pericia, alert: "Revise a transcrição antes de gerar o laudo."
+    end
+
+    @pericia.update!(status: "processando")
+    GenerateLaudoJob.perform_later(@pericia.id)
+    redirect_to @pericia, notice: "Geração do laudo iniciada. Isso pode levar alguns minutos."
   end
 
   def generate_pdf

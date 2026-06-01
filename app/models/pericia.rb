@@ -45,6 +45,14 @@ class Pericia < ApplicationRecord
     laudo_sections.aplicaveis.all?(&:revisado?)
   end
 
+  def transcricao_documento
+    pericia_documents.find_by(document_type: "transcricao")
+  end
+
+  def pronta_para_gerar_laudo?
+    transcricao_revisada? && pericia_documents.any?
+  end
+
   private
 
   def transicao_de_status_valida
