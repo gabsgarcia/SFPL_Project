@@ -1,46 +1,57 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
   <head>
-    <title><%= content_for(:title) || "Sfpl" %></title>
+    <title><%= content_for?(:title) ? "#{content_for(:title)} — SFPL" : "SFPL — Plataforma de Laudos Periciais Trabalhistas" %></title>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="Sfpl">
+    <meta name="application-name" content="SFPL">
     <meta name="mobile-web-app-capable" content="yes">
+
+    <%# SEO básico %>
+    <meta name="description" content="<%= content_for?(:description) ? content_for(:description) : "Plataforma de geração automatizada de laudos técnicos periciais de insalubridade e periculosidade com inteligência artificial." %>">
+    <meta name="robots" content="noindex, nofollow">
+
+    <%# Open Graph (WhatsApp, LinkedIn, Facebook) %>
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="SFPL">
+    <meta property="og:title" content="<%= content_for?(:title) ? "#{content_for(:title)} — SFPL" : "SFPL — Plataforma de Laudos Periciais Trabalhistas" %>">
+    <meta property="og:description" content="<%= content_for?(:description) ? content_for(:description) : "Plataforma de geração automatizada de laudos técnicos periciais de insalubridade e periculosidade com inteligência artificial." %>">
+    <meta property="og:image" content="<%= asset_url('banner1.png') %>">
+    <meta property="og:locale" content="pt_BR">
+
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
     <%= yield :head %>
 
-    <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
-    <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
+    <%# Favicon — usando logo da pasta assets/images %>
+    <link rel="icon" href="<%= asset_path('favicon.png') %>" type="image/png">
+    <link rel="apple-touch-icon" href="<%= asset_path('favicon.png') %>">
 
-    <link rel="icon" href="/icon.png" type="image/png">
-    <link rel="icon" href="/icon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/icon.png">
-
-    <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
 
   <body>
     <%= render "shared/navbar" %>
-    
+
     <main class="container flex-grow-1">
       <% if notice %>
         <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
           <%= notice %>
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
         </div>
       <% end %>
       <% if alert %>
         <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
           <%= alert %>
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
         </div>
       <% end %>
       <%= yield %>
     </main>
+
     <%= render "shared/footer" %>
   </body>
 </html>

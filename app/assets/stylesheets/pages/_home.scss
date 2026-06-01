@@ -1,1 +1,12 @@
-// Specific CSS for your home-page
+.banner {
+  background-size: cover;
+  background-position: center;
+  padding: 150px 0;
+
+  // Quebra o container do layout para ir de ponta a ponta
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  margin-left: -50vw;
+  
+}

@@ -7,6 +7,13 @@ Rails.application.routes.draw do
 
   resources :pericias do
     resources :pericia_documents, only: [:create, :destroy]
+    resources :laudo_sections, only: [:update]
+    resources :quesito_respostas, only: [:update]
+    member do
+      get  :review
+      post :generate_laudo
+      post :generate_pdf
+    end
   end
 
   root to: "pages#home"
