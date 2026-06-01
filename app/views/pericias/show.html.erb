@@ -81,9 +81,20 @@
         <ul class="list-group list-group-flush mb-4">
           <% @pericia.pericia_documents.each do |doc| %>
             <li class="list-group-item d-flex justify-content-between align-items-center">
-              <span>
-                <span class="badge bg-secondary me-2"><%= doc.label %></span>
+              <span class="d-flex align-items-center gap-2">
+                <span class="badge bg-secondary"><%= doc.label %></span>
                 <%= doc.nome_original %>
+                <% if doc.processado? %>
+                  <% if doc.texto_extraido&.start_with?("[Erro") %>
+                    <span class="badge bg-danger">Erro na extração</span>
+                  <% elsif doc.texto_extraido.present? %>
+                    <span class="badge bg-success">Texto extraído</span>
+                  <% else %>
+                    <span class="badge bg-light text-muted">Sem texto</span>
+                  <% end %>
+                <% else %>
+                  <span class="badge bg-warning text-dark">Processando...</span>
+                <% end %>
               </span>
               <%= button_to "Remover",
                     pericia_pericia_document_path(@pericia, doc),
@@ -100,21 +111,20 @@
       <%# Formulário de upload %>
       <hr class="mb-3">
       <h6 class="mb-3">Enviar novo documento</h6>
-      <%= form_with url: pericia_pericia_documents_path(@pericia), multipart: true do |f| %>
+      <%= simple_form_for [@pericia, PericiaDocument.new] do |f| %>
         <div class="row g-2 align-items-end">
           <div class="col-md-4">
-            <%= f.label :document_type, "Tipo de documento", class: "form-label" %>
-            <%= f.select :document_type,
-                  PericiaDocument::DOCUMENT_TYPES.map { |t| [PericiaDocument::LABELS[t], t] },
-                  { include_blank: "Selecione o tipo..." },
-                  class: "form-select" %>
+            <%= f.input :document_type,
+                  label: "Tipo de documento",
+                  as: :select,
+                  collection: PericiaDocument::DOCUMENT_TYPES.map { |t| [PericiaDocument::LABELS[t], t] },
+                  include_blank: "Selecione o tipo..." %>
           </div>
           <div class="col-md-6">
-            <%= f.label :file, "Arquivo", class: "form-label" %>
-            <%= f.file_field :file, class: "form-control" %>
+            <%= f.input :file, label: "Arquivo", as: :file %>
           </div>
-          <div class="col-md-2">
-            <%= f.submit "Enviar", class: "btn btn-primary w-100" %>
+          <div class="col-md-2 mt-auto pb-3">
+            <%= f.button :submit, "Enviar", class: "btn btn-primary w-100" %>
           </div>
         </div>
       <% end %>

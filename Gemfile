@@ -50,6 +50,15 @@ gem "devise"
 gem "cloudinary"
 gem "active_storage_validations"
 
+# Extração de texto de documentos
+gem "pdf-reader"
+gem "docx"
+gem "roo"
+
+# Geração do PDF final do laudo
+gem "wicked_pdf"
+gem "wkhtmltopdf-binary"
+
 group :development, :test do
   gem "dotenv-rails"
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem

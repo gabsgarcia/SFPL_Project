@@ -7,7 +7,8 @@ class PericiaDocumentsController < ApplicationController
     @document.nome_original = document_params[:file]&.original_filename
 
     if @document.save
-      redirect_to @pericia, notice: "Documento enviado com sucesso."
+      ProcessDocumentsJob.perform_later(@document.id)
+      redirect_to @pericia, notice: "Documento enviado. O texto será extraído em breve."
     else
       redirect_to @pericia, alert: "Erro ao enviar documento: #{@document.errors.full_messages.to_sentence}"
     end
