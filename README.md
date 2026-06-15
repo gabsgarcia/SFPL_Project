@@ -1,20 +1,18 @@
 # SFPL — Plataforma de Laudos Periciais Trabalhistas
 
-Sistema Rails para automatizar a geração de **laudos técnicos periciais de insalubridade e periculosidade** em processos trabalhistas. O perito faz upload dos documentos do caso e da transcrição da visita pericial, e um agente de IA (Claude) gera um rascunho completo do laudo para revisão seção por seção antes da exportação em PDF.
+Sistema Rails para automatizar o trabalho de **peritos judiciais** em processos trabalhistas de insalubridade e periculosidade. O perito faz upload do PDF do processo, a IA extrai os dados e preenche automaticamente os documentos de cada fase da perícia.
 
 ---
 
 ## Contexto do domínio
 
-Quando um trabalhador processa uma empresa exigindo adicional de insalubridade ou periculosidade, o juiz nomeia um perito para investigar as condições reais de trabalho. O perito:
+Quando um trabalhador processa uma empresa exigindo adicional de insalubridade ou periculosidade, o juiz nomeia um perito para investigar as condições reais de trabalho. O processo judicial (PDF com centenas de páginas) contém todos os dados necessários: partes, advogados, e-mails, quesitos e histórico.
 
-1. Agenda a visita e notifica os advogados das partes
-2. Recebe documentos da empresa (PPRA/PGR, ASOs, PPP, fichas de EPI etc.)
-3. Realiza a visita pericial no local de trabalho
-4. Analisa tudo à luz das Normas Regulamentadoras aplicáveis
-5. Entrega o laudo técnico ao juiz respondendo os quesitos das partes
+O perito trabalha em três fases bem distintas:
 
-Esta plataforma automatiza o processamento de documentos, a limpeza da transcrição da visita e a geração do laudo com IA.
+- **Fase 1 — Pré-visita:** Lê o processo, prepara e envia documentos iniciais ao juiz e advogados.
+- **Fase 2 — Pós-visita:** Processa o material da diligência (transcrição, fotos, documentos da reclamada) e gera o pré-laudo.
+- **Fase 3 — Laudo final:** Revisa o pré-laudo seção por seção e exporta o PDF assinável.
 
 ---
 
@@ -29,23 +27,82 @@ Esta plataforma automatiza o processamento de documentos, a limpeza da transcri�
 | Upload de arquivos | Active Storage + Cloudinary |
 | Jobs assíncronos | Solid Queue |
 | Frontend | Bootstrap 5.3 + Stimulus + Turbo (Hotwire) |
-| Locale | pt-BR (timezone: Brasília) |
+| Geração de PDF | wicked_pdf + wkhtmltopdf-binary |
+| Extração de documentos | pdf-reader, docx, roo |
 
 ---
 
 ## Modelos principais
 
 ```
-Pericia             → processo judicial completo (pertence a um User)
-├── PericiaDocument → cada arquivo enviado para o processo
-├── LaudoSection    → cada seção do laudo gerado pela IA
-└── QuesitoResposta → quesitos das partes e suas respostas
+User
+└── Pericia                → processo judicial completo (modelo central)
+    ├── DocumentoBase      → ARQ 1-4, gerados pela IA na Fase 1 (conteúdo text/HTML)
+    ├── PericiaDocument    → arquivos físicos da visita e da reclamada (Fase 2)
+    ├── LaudoSection       → cada seção do pré-laudo gerado pela IA
+    └── QuesitoResposta    → quesitos das partes e suas respostas
 ```
+
+### Diferença entre DocumentoBase e PericiaDocument
+
+| | `DocumentoBase` | `PericiaDocument` |
+|---|---|---|
+| Quando | Fase 1 (pré-visita) | Fase 2 (pós-visita) |
+| Criado por | IA (`ExtractProcessoJob`) | Perito (upload manual) |
+| Conteúdo | Texto/HTML editável na plataforma | Arquivo físico (PDF, áudio, foto) |
+| Exemplos | ARQ 1 petição, ARQ 2 e-mail, ARQ 3 termo, ARQ 4 análise | PPRA, ASO, transcrição, fotos, ARQ 3/4 preenchidos |
+| Exportação | PDF ou texto de e-mail | Visualização/download |
 
 ### Status do processo (`Pericia#status`)
 
 ```
 rascunho → documentos_ok → agendado → vistoria_feita → processando → em_revisao → concluido
+```
+
+> Os status serão alinhados ao fluxo de 3 fases na Phase 4.
+
+---
+
+## Fluxo completo
+
+### Fase 1 — Pré-visita
+
+```
+1. Perito cria a Pericia e faz upload do PDF do processo judicial
+         ↓
+2. ExtractProcessoJob (IA):
+   Extrai do PDF: partes, advogados, e-mails, quesitos, tipo de perícia, prazo
+         ↓
+3. Plataforma cria os 4 DocumentoBase automaticamente:
+   ARQ 1 — Petição ao juiz   (exporta PDF)
+   ARQ 2 — E-mail advogados  (exporta texto)
+   ARQ 3 — Termo de Comparecimento  (exporta PDF, perito leva na visita)
+   ARQ 4 — Análise do Perito (exporta PDF, perito usa na visita)
+         ↓
+4. Perito revisa e edita os 4 documentos na plataforma
+5. Exporta e envia (fora da plataforma por ora)
+```
+
+### Fase 2 — Pós-visita
+
+```
+6. Perito faz upload dos materiais da diligência:
+   ARQ 3 e ARQ 4 preenchidos + documentos da reclamada + áudio/transcrição + fotos
+         ↓
+7. CleanTranscricaoJob (IA): limpa transcrição e extrai dados estruturados em JSON
+         ↓
+8. Perito marca quais agentes de risco estão presentes no caso
+         ↓
+9. GenerateLaudoJob (IA): gera cada seção do pré-laudo via Claude
+```
+
+### Fase 3 — Laudo final
+
+```
+10. Perito revisa o pré-laudo seção por seção na interface
+    → edita, salva, marca como revisado, pode regenerar uma seção
+         ↓
+11. Exportação do laudo completo em PDF
 ```
 
 ---
@@ -84,59 +141,36 @@ ANTHROPIC_API_KEY=sk-ant-...
 
 ---
 
-## Fluxo de trabalho
-
-```
-1. Perito cria a Pericia (dados do processo)
-         ↓
-2. Upload dos documentos recebidos da reclamada
-   (PPRA, ASO, PPP, fichas EPI, FDS etc.)
-         ↓
-3. ProcessDocumentsJob → extrai texto de cada arquivo (PDF, DOCX, XLSX)
-         ↓
-4. Upload da transcrição/áudio da visita pericial
-         ↓
-5. CleanTranscricaoJob (Agente 1)
-   → limpa a transcrição automática
-   → extrai informações estruturadas em JSON
-         ↓
-6. Perito marca os agentes de risco presentes no caso
-         ↓
-7. GenerateLaudoJob (Agente 2)
-   → gera cada seção do laudo sequencialmente via Claude
-   → salva em LaudoSection
-         ↓
-8. Perito revisa seção por seção na interface web
-   → edita, salva, marca como revisado
-   → pode pedir regeneração de uma seção específica
-         ↓
-9. Exportação do laudo completo em PDF
-```
-
----
-
 ## Normas Regulamentadoras cobertas
 
 | NR | Escopo |
 |---|---|
 | NR-6 | EPIs — validade e suficiência dos equipamentos de proteção |
 | NR-10 | Eletricidade |
+| NR-13 | Caldeiras, vasos de pressão e tubulações |
 | NR-15 | Insalubridade (Ruído, Calor, Agentes Químicos, Biológicos) |
 | NR-16 | Periculosidade (Inflamáveis, Energia Elétrica, Motocicleta) |
 | NR-17 | Ergonomia — AET |
 
-**Jurisprudência relevante:** Súmula 448 TST — higienização de sanitários de uso público/coletivo de grande circulação = insalubre grau máximo (Anexo 14 NR-15).
+**Jurisprudência relevante:** Súmula 448 TST II — higienização de sanitários de uso público/coletivo de grande circulação = insalubre grau máximo (Anexo 14 NR-15).
 
 ---
 
 ## Fases de desenvolvimento
 
-- [x] **Phase 1** — Modelos do domínio pericial + internacionalização pt-BR
-- [ ] **Phase 2** — Rotas, controllers e upload de documentos
-- [ ] **Phase 3** — Gems de extração de texto (pdf-reader, docx, roo) + wicked_pdf
-- [ ] **Phase 4** — Serviços de IA (CleanTranscricaoService, GenerateLaudoService)
-- [ ] **Phase 5** — Interface de revisão do laudo (Turbo Frames + Stimulus)
-- [ ] **Phase 6** — Geração do PDF final e documentos automáticos
+- [x] **Phase 1** — Modelos do domínio + internacionalização pt-BR
+- [x] **Phase 2** — Rotas, controllers e upload de documentos
+- [x] **Phase 3** — Extração de texto de documentos (pdf-reader, docx, roo) + wicked_pdf
+- [x] **Phase 4** — Serviços de IA para Fase 1 da perícia:
+  - `DocumentoBase` model + migration + controller (ARQ 1-4)
+  - 9 campos novos em `pericias` (emails, assistentes, prazo, resumos)
+  - `ProcessoExtractor` service — extração do PDF do processo em chunks
+  - `ExtractProcessoJob` — orquestra extração, quesitos e ARQ 1-4
+  - Status states alinhados ao fluxo de 3 fases (9 estados + transições validadas)
+  - `PericiaDocument` com tipos `arq3_preenchido` e `arq4_preenchido`
+- [ ] **Phase 5** — Interface da Fase 1: upload do processo, disparo da extração,
+  revisão dos ARQ 1-4 com edição inline, exportação PDF/email, confirmação de envio
+- [ ] **Phase 6** — Geração do PDF final do laudo
 
 ---
 

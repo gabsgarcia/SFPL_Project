@@ -1,0 +1,139 @@
+<% content_for :title, "Revisar Transcrição" %>
+
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="h3 mb-1">Revisar transcrição</h1>
+      <p class="text-muted mb-0"><%= @pericia.numero_processo %></p>
+    </div>
+    <%= link_to "Voltar ao processo", @pericia, class: "btn btn-outline-secondary btn-sm" %>
+  </div>
+
+  <% dados = @pericia.transcricao_limpa || {} %>
+
+  <% if dados.blank? %>
+    <div class="alert alert-warning">
+      A transcrição ainda não foi processada pela IA. Faça o upload do arquivo de transcrição e aguarde.
+    </div>
+  <% else %>
+    <%= form_with url: update_transcricao_pericia_path(@pericia), method: :patch do |f| %>
+      <div class="card mb-4">
+        <div class="card-header"><strong>Rotina de trabalho</strong></div>
+        <div class="card-body row g-3">
+
+          <div class="col-12">
+            <label class="form-label">Descrição da rotina</label>
+            <textarea name="transcricao[rotina_trabalho]" class="form-control" rows="4"><%= dados["rotina_trabalho"] %></textarea>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Frequência da atividade principal</label>
+            <input type="text" name="transcricao[frequencia_atividade_principal]" class="form-control" value="<%= dados["frequencia_atividade_principal"] %>">
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">Tempo por tarefa</label>
+            <input type="text" name="transcricao[tempo_por_tarefa]" class="form-control" value="<%= dados["tempo_por_tarefa"] %>">
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">Tamanho da equipe</label>
+            <input type="number" name="transcricao[tamanho_equipe]" class="form-control" value="<%= dados["tamanho_equipe"] %>">
+          </div>
+
+          <div class="col-12">
+            <label class="form-label">Áreas trabalhadas <span class="text-muted small">(uma por linha)</span></label>
+            <% areas = Array(dados["areas_trabalhadas"]) %>
+            <% areas.each_with_index do |area, i| %>
+              <input type="text" name="transcricao[areas_trabalhadas][]" class="form-control mb-1" value="<%= area %>">
+            <% end %>
+            <input type="text" name="transcricao[areas_trabalhadas][]" class="form-control mb-1" placeholder="+ nova área">
+          </div>
+
+          <div class="col-12">
+            <label class="form-label">Descrição do local de trabalho</label>
+            <input type="text" name="transcricao[local_trabalho_descricao]" class="form-control" value="<%= dados["local_trabalho_descricao"] %>">
+          </div>
+
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-header"><strong>EPIs e produtos</strong></div>
+        <div class="card-body row g-3">
+
+          <div class="col-12">
+            <label class="form-label">Produtos utilizados <span class="text-muted small">(um por linha)</span></label>
+            <% produtos = Array(dados["produtos_utilizados"]) %>
+            <% produtos.each do |p| %>
+              <input type="text" name="transcricao[produtos_utilizados][]" class="form-control mb-1" value="<%= p %>">
+            <% end %>
+            <input type="text" name="transcricao[produtos_utilizados][]" class="form-control mb-1" placeholder="+ novo produto">
+          </div>
+
+          <div class="col-12">
+            <label class="form-label">EPIs recebidos <span class="text-muted small">(um por linha)</span></label>
+            <% epis = Array(dados["epis_recebidos"]) %>
+            <% epis.each do |e| %>
+              <input type="text" name="transcricao[epis_recebidos][]" class="form-control mb-1" value="<%= e %>">
+            <% end %>
+            <input type="text" name="transcricao[epis_recebidos][]" class="form-control mb-1" placeholder="+ novo EPI">
+          </div>
+
+          <div class="col-md-4">
+            <div class="form-check mt-2">
+              <input class="form-check-input" type="checkbox" name="transcricao[epis_utilizados]" value="1" id="epis_utilizados" <%= "checked" if dados["epis_utilizados"] %>>
+              <label class="form-check-label" for="epis_utilizados">Utilizava os EPIs</label>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="form-check mt-2">
+              <input class="form-check-input" type="checkbox" name="transcricao[assinou_ficha_epi]" value="1" id="assinou_ficha_epi" <%= "checked" if dados["assinou_ficha_epi"] %>>
+              <label class="form-check-label" for="assinou_ficha_epi">Assinou ficha de EPI</label>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-header"><strong>Coleta de lixo e rodízio</strong></div>
+        <div class="card-body row g-3">
+
+          <div class="col-md-4">
+            <div class="form-check mt-2">
+              <input class="form-check-input" type="checkbox" name="transcricao[coleta_lixo]" value="1" id="coleta_lixo" <%= "checked" if dados["coleta_lixo"] %>>
+              <label class="form-check-label" for="coleta_lixo">Realizava coleta de lixo</label>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="form-check mt-2">
+              <input class="form-check-input" type="checkbox" name="transcricao[sistema_rodizio]" value="1" id="sistema_rodizio" <%= "checked" if dados["sistema_rodizio"] %>>
+              <label class="form-check-label" for="sistema_rodizio">Sistema de rodízio</label>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label">Tipo de lixo coletado</label>
+            <input type="text" name="transcricao[tipo_lixo]" class="form-control" value="<%= dados["tipo_lixo"] %>">
+          </div>
+
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-header"><strong>Observações adicionais</strong></div>
+        <div class="card-body">
+          <textarea name="transcricao[observacoes_adicionais]" class="form-control" rows="4"><%= dados["observacoes_adicionais"] %></textarea>
+        </div>
+      </div>
+
+      <div class="d-flex gap-2 mb-5">
+        <%= f.submit "Confirmar e liberar geração do laudo", class: "btn btn-success btn-lg" %>
+        <%= link_to "Cancelar", @pericia, class: "btn btn-outline-secondary" %>
+      </div>
+    <% end %>
+  <% end %>
+</div>

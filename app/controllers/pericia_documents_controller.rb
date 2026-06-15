@@ -8,7 +8,13 @@ class PericiaDocumentsController < ApplicationController
 
     if @document.save
       ProcessDocumentsJob.perform_later(@document.id)
-      redirect_to @pericia, notice: "Documento enviado. O texto será extraído em breve."
+
+      if @document.document_type == "transcricao"
+        CleanTranscricaoJob.perform_later(@pericia.id)
+        redirect_to @pericia, notice: "Transcrição enviada. A IA irá processá-la em breve."
+      else
+        redirect_to @pericia, notice: "Documento enviado. O texto será extraído em breve."
+      end
     else
       redirect_to @pericia, alert: "Erro ao enviar documento: #{@document.errors.full_messages.to_sentence}"
     end

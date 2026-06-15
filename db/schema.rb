@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_31_200005) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_15_015016) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -42,6 +42,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_31_200005) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
+  create_table "documento_bases", force: :cascade do |t|
+    t.text "conteudo"
+    t.datetime "created_at", null: false
+    t.bigint "pericia_id", null: false
+    t.boolean "revisado", default: false, null: false
+    t.datetime "revisado_em"
+    t.string "tipo", null: false
+    t.datetime "updated_at", null: false
+    t.index ["pericia_id", "tipo"], name: "index_documento_bases_on_pericia_id_and_tipo", unique: true
+    t.index ["pericia_id"], name: "index_documento_bases_on_pericia_id"
+  end
+
   create_table "laudo_sections", force: :cascade do |t|
     t.boolean "aplicavel", default: true, null: false
     t.string "codigo"
@@ -68,20 +80,29 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_31_200005) do
 
   create_table "pericias", force: :cascade do |t|
     t.date "admissao"
+    t.string "assist_tec_reclamada_1"
+    t.string "assist_tec_reclamada_2"
+    t.string "assist_tec_reclamante"
     t.string "comarca"
     t.datetime "created_at", null: false
     t.datetime "data_pericia"
     t.date "demissao"
+    t.string "email_adv_reclamada_1"
+    t.string "email_adv_reclamada_2"
+    t.string "email_adv_reclamante"
     t.string "funcao_reclamante"
     t.integer "honorarios_salarios"
     t.text "local_pericia"
     t.string "numero_processo"
     t.text "observacoes_perito"
+    t.date "prazo_laudo"
     t.string "reclamada_1"
     t.string "reclamada_2"
     t.string "reclamante"
     t.string "regiao_trt"
-    t.string "status", default: "rascunho", null: false
+    t.text "resumo_contestacao"
+    t.text "resumo_inicial"
+    t.string "status", default: "novo", null: false
     t.boolean "tem_biologico", default: false, null: false
     t.boolean "tem_calor", default: false, null: false
     t.boolean "tem_eletricidade", default: false, null: false
@@ -90,6 +111,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_31_200005) do
     t.boolean "tem_quimico", default: false, null: false
     t.boolean "tem_ruido", default: false, null: false
     t.string "tipo_pericia"
+    t.jsonb "transcricao_limpa"
+    t.boolean "transcricao_revisada", default: false, null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.string "vara"
@@ -267,6 +290,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_31_200005) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "documento_bases", "pericias"
   add_foreign_key "laudo_sections", "pericias"
   add_foreign_key "pericia_documents", "pericias"
   add_foreign_key "pericias", "users"

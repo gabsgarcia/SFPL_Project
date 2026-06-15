@@ -6,13 +6,18 @@ Rails.application.routes.draw do
   resource :profile, only: [:show, :edit, :update]
 
   resources :pericias do
+    resources :documento_bases, only: [:show, :edit, :update]
     resources :pericia_documents, only: [:create, :destroy]
     resources :laudo_sections, only: [:update]
     resources :quesito_respostas, only: [:update]
     member do
-      get  :review
-      post :generate_laudo
-      post :generate_pdf
+      get   :review
+      get   :review_docs_base
+      post  :extract_processo
+      get   :review_transcricao
+      patch :update_transcricao
+      post  :generate_laudo
+      post  :generate_pdf
     end
   end
 
