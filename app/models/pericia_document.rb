@@ -3,6 +3,8 @@ class PericiaDocument < ApplicationRecord
   has_one_attached :file
 
   DOCUMENT_TYPES = %w[
+    arq3_preenchido
+    arq4_preenchido
     ppra
     pgr
     aso
@@ -23,6 +25,8 @@ class PericiaDocument < ApplicationRecord
   ].freeze
 
   LABELS = {
+    "arq3_preenchido" => "ARQ 3 preenchido — Termo de Comparecimento (pós-visita)",
+    "arq4_preenchido" => "ARQ 4 preenchido — Análise do Perito (pós-visita)",
     "ppra"            => "PPRA — Programa de Prevenção de Riscos Ambientais",
     "pgr"             => "PGR — Programa de Gerenciamento de Riscos",
     "aso"             => "ASO — Atestado de Saúde Ocupacional",
