@@ -13,6 +13,7 @@ class ExtractProcessoJob < ApplicationJob
 
   def perform(pericia_id)
     @pericia = Pericia.find(pericia_id)
+    @pericia.update!(status: "extraindo_dados")
 
     dados = ProcessoExtractor.new(@pericia).extract
     quesitos = dados.delete(:quesitos) || []
@@ -20,8 +21,11 @@ class ExtractProcessoJob < ApplicationJob
     atualizar_pericia(dados)
     criar_quesitos(quesitos)
     criar_documento_bases
+
+    @pericia.update!(status: "docs_base_prontos")
   rescue => e
     Rails.logger.error("[ExtractProcessoJob] pericia_id=#{pericia_id} erro=#{e.message}")
+    @pericia&.update_column(:status, "erro")
     raise e
   end
 

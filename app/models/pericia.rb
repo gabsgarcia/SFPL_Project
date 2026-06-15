@@ -7,25 +7,29 @@ class Pericia < ApplicationRecord
   has_many :quesito_respostas, -> { order(:origem, :numero) }, dependent: :destroy
 
   STATUSES = %w[
-    rascunho
-    documentos_ok
-    agendado
-    vistoria_feita
-    processando
-    em_revisao
+    novo
+    extraindo_dados
+    docs_base_prontos
+    aguardando_visita
+    processando_pos_visita
+    pre_laudo_em_revisao
+    pre_laudo_aprovado
     concluido
+    erro
   ].freeze
 
   TIPOS_PERICIA = %w[insalubridade periculosidade ambos].freeze
 
   TRANSICOES_VALIDAS = {
-    "rascunho"       => %w[documentos_ok],
-    "documentos_ok"  => %w[agendado],
-    "agendado"       => %w[vistoria_feita],
-    "vistoria_feita" => %w[processando],
-    "processando"    => %w[em_revisao],
-    "em_revisao"     => %w[concluido processando],
-    "concluido"      => []
+    "novo"                   => %w[extraindo_dados],
+    "extraindo_dados"        => %w[docs_base_prontos erro],
+    "docs_base_prontos"      => %w[aguardando_visita],
+    "aguardando_visita"      => %w[processando_pos_visita],
+    "processando_pos_visita" => %w[pre_laudo_em_revisao erro],
+    "pre_laudo_em_revisao"   => %w[pre_laudo_aprovado processando_pos_visita],
+    "pre_laudo_aprovado"     => %w[concluido],
+    "concluido"              => [],
+    "erro"                   => %w[novo extraindo_dados processando_pos_visita]
   }.freeze
 
   validates :numero_processo, presence: true

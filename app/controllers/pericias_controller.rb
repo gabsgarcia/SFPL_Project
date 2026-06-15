@@ -83,7 +83,7 @@ class PericiasController < ApplicationController
       return redirect_to @pericia, alert: "Revise a transcrição antes de gerar o laudo."
     end
 
-    @pericia.update!(status: "processando")
+    @pericia.update!(status: "processando_pos_visita")
     GenerateLaudoJob.perform_later(@pericia.id)
     redirect_to @pericia, notice: "Geração do laudo iniciada. Isso pode levar alguns minutos."
   end

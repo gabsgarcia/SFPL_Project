@@ -38,7 +38,7 @@ class GenerateLaudoService
       generate_section(secao[:codigo])
     end
 
-    @pericia.update!(status: "em_revisao")
+    @pericia.update!(status: "pre_laudo_em_revisao")
   end
 
   def generate_section(codigo)

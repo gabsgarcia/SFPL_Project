@@ -11,7 +11,7 @@ class GenerateLaudoJob < ApplicationJob
       service.generate_all
     end
   rescue => e
-    pericia.update!(status: "em_revisao")
+    pericia.update_column(:status, "erro")
     raise e
   end
 end

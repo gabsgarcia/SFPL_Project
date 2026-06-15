@@ -136,7 +136,7 @@
   <div class="card mb-4">
     <div class="card-header d-flex justify-content-between align-items-center">
       <strong>Laudo</strong>
-      <% if @pericia.status == "em_revisao" || @pericia.status == "concluido" %>
+      <% if @pericia.status.in?(%w[pre_laudo_em_revisao pre_laudo_aprovado concluido]) %>
         <%= link_to "Revisar laudo", review_pericia_path(@pericia), class: "btn btn-sm btn-primary" %>
       <% end %>
     </div>
