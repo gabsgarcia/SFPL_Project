@@ -68,6 +68,47 @@
     </div>
   <% end %>
 
+  <%# Fase 1 — Extração de dados %>
+  <div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <strong>Fase 1 — Extração de dados</strong>
+      <%= render "status_badge", pericia: @pericia %>
+    </div>
+    <div class="card-body">
+      <% case @pericia.status %>
+      <% when "novo" %>
+        <p class="text-muted mb-3">PDF enviado. Clique para extrair os dados do processo com IA.</p>
+        <%= button_to "Extrair dados com IA",
+              extract_processo_pericia_path(@pericia),
+              method: :post,
+              class: "btn btn-primary btn-sm",
+              form: { data: { turbo_confirm: "Iniciar extração? O agente irá ler o PDF e preencher os documentos automaticamente." } } %>
+      <% when "extraindo_dados" %>
+        <div class="d-flex align-items-center gap-2 text-muted">
+          <div class="spinner-border spinner-border-sm" role="status"></div>
+          <span>Extraindo dados do processo — aguarde alguns instantes...</span>
+        </div>
+      <% when "docs_base_prontos" %>
+        <p class="text-muted mb-3">Dados extraídos. Revise os 4 documentos antes de confirmar o envio.</p>
+        <%= link_to "Revisar documentos (ARQ 1-4)", review_docs_base_pericia_path(@pericia), class: "btn btn-primary btn-sm" %>
+      <% when "aguardando_visita" %>
+        <div class="alert alert-success py-2 mb-0">
+          Documentos enviados. Aguardando a visita pericial.
+        </div>
+      <% when "erro" %>
+        <div class="alert alert-danger py-2 mb-3">
+          Ocorreu um erro durante a extração. Verifique se o PDF está correto e tente novamente.
+        </div>
+        <%= button_to "Tentar novamente",
+              extract_processo_pericia_path(@pericia),
+              method: :post,
+              class: "btn btn-warning btn-sm" %>
+      <% else %>
+        <p class="text-muted mb-0">Fase 1 concluída.</p>
+      <% end %>
+    </div>
+  </div>
+
   <%# Documentos %>
   <div class="card mb-4">
     <div class="card-header d-flex justify-content-between align-items-center">

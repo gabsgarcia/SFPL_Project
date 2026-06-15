@@ -229,13 +229,10 @@ class ProcessoExtractor
   end
 
   def chamar_claude(system_prompt, conteudo)
-    resposta = RubyLLM.chat do |chat|
-      chat.with_model("claude-sonnet-4-6")
-      chat.with_system(system_prompt)
-      chat.ask(conteudo)
-    end
-
-    JSON.parse(resposta.content)
+    chat = RubyLLM.chat(model: "claude-sonnet-4-6")
+    chat.with_instructions(system_prompt)
+    response = chat.ask(conteudo)
+    JSON.parse(response.content)
   rescue JSON::ParserError => e
     Rails.logger.error("[ProcessoExtractor] JSON inválido: #{e.message}")
     {}

@@ -1,7 +1,7 @@
 class Pericia < ApplicationRecord
   belongs_to :user
   has_one_attached :arquivo_processo
-  has_many :documento_bases, dependent: :destroy
+  has_many :documento_bases, class_name: "DocumentoBase", dependent: :destroy
   has_many :pericia_documents, dependent: :destroy
   has_many :laudo_sections, -> { order(:ordem) }, dependent: :destroy
   has_many :quesito_respostas, -> { order(:origem, :numero) }, dependent: :destroy

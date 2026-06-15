@@ -43,13 +43,11 @@ class CleanTranscricaoService
     documento = @pericia.transcricao_documento
     return unless documento&.texto_extraido.present?
 
-    resposta = RubyLLM.chat do |chat|
-      chat.with_model("claude-opus-4-5-20251101")
-      chat.with_system(PROMPT_SISTEMA)
-      chat.ask(documento.texto_extraido)
-    end
+    chat = RubyLLM.chat(model: "claude-opus-4-5-20251101")
+    chat.with_instructions(PROMPT_SISTEMA)
+    response = chat.ask(documento.texto_extraido)
 
-    json = JSON.parse(resposta.content)
+    json = JSON.parse(response.content)
     @pericia.update!(transcricao_limpa: json)
     json
   rescue JSON::ParserError => e
