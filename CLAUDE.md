@@ -411,7 +411,7 @@ end
 
 | Job | Arquivo | Status |
 |---|---|---|
-| `ExtractProcessoJob` | `app/jobs/extract_processo_job.rb` | ❌ a criar (Phase 4) |
+| `ExtractProcessoJob` | `app/jobs/extract_processo_job.rb` | ✅ implementado (Phase 4) |
 | `CleanTranscricaoJob` | `app/jobs/clean_transcricao_job.rb` | ✅ existe |
 | `GenerateLaudoJob` | `app/jobs/generate_laudo_job.rb` | ✅ existe (= `GeneratePreLaudoJob` do spec) |
 | `ProcessDocumentsJob` | `app/jobs/process_documents_job.rb` | ✅ existe (extra) |
@@ -419,11 +419,15 @@ end
 ### ExtractProcessoJob
 
 ```ruby
-# app/jobs/extract_processo_job.rb — A CRIAR
+# app/jobs/extract_processo_job.rb
 # Fase 1: lê o PDF do processo e extrai todos os dados
 # Input: pericia_id
-# Output: preenche campos da Pericia + cria 4 DocumentoBase
-# (status será ajustado quando alinharmos os status states)
+# Fluxo: novo → extraindo_dados → docs_base_prontos (ou erro)
+# Output:
+#   - atualiza campos da Pericia (numero_processo, vara, emails, etc.)
+#   - cria QuesitoResposta para cada quesito encontrado
+#   - cria/atualiza os 4 DocumentoBase (ARQ 1-4) com templates preenchidos
+# Usa: ProcessoExtractor service (extração por chunks, 5 chamadas ao Claude)
 ```
 
 **O que o agente deve extrair do processo (buscar por seções-chave):**
@@ -678,10 +682,12 @@ Buscar no texto por marcadores conhecidos:
 Não enviar o processo inteiro. Enviar apenas os chunks onde cada
 informação foi encontrada — reduz tokens e melhora precisão.
 
-**Serviço:** `app/services/processo_extractor.rb`
+**Serviço:** `app/services/processo_extractor.rb` — ✅ implementado (Phase 4)
 - Usa `pdf-reader` para extrair texto página por página
-- Identifica seções por regex/palavras-chave
-- Envia chunks relevantes ao Claude com prompts específicos por dado
+- Identifica seções por keyword matching com `Regexp.escape` (seguro para chars especiais)
+- 5 chamadas independentes ao Claude: capa, decisão, inicial, contestação, quesitos
+- Limite de 16k chars por chunk; trunca automaticamente se exceder
+- Retorna hash com todos os campos + array de quesitos
 
 ---
 

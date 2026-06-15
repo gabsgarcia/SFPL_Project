@@ -161,9 +161,16 @@ ANTHROPIC_API_KEY=sk-ant-...
 - [x] **Phase 1** — Modelos do domínio + internacionalização pt-BR
 - [x] **Phase 2** — Rotas, controllers e upload de documentos
 - [x] **Phase 3** — Extração de texto de documentos (pdf-reader, docx, roo) + wicked_pdf
-- [ ] **Phase 4** — Serviços de IA: ExtractProcessoJob, DocumentoBase, ajuste de status
-- [ ] **Phase 5** — Interface de revisão do laudo (Turbo Frames + Stimulus)
-- [ ] **Phase 6** — Geração do PDF final
+- [x] **Phase 4** — Serviços de IA para Fase 1 da perícia:
+  - `DocumentoBase` model + migration + controller (ARQ 1-4)
+  - 9 campos novos em `pericias` (emails, assistentes, prazo, resumos)
+  - `ProcessoExtractor` service — extração do PDF do processo em chunks
+  - `ExtractProcessoJob` — orquestra extração, quesitos e ARQ 1-4
+  - Status states alinhados ao fluxo de 3 fases (9 estados + transições validadas)
+  - `PericiaDocument` com tipos `arq3_preenchido` e `arq4_preenchido`
+- [ ] **Phase 5** — Interface da Fase 1: upload do processo, disparo da extração,
+  revisão dos ARQ 1-4 com edição inline, exportação PDF/email, confirmação de envio
+- [ ] **Phase 6** — Geração do PDF final do laudo
 
 ---
 

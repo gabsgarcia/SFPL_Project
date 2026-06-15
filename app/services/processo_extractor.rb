@@ -200,7 +200,7 @@ class ProcessoExtractor
   # Retorna os números das páginas que contêm alguma das palavras-chave
   def paginas_com_keywords(keywords)
     @page_texts.select do |_num, text|
-      keywords.any? { |kw| text.match?(/#{kw}/i) }
+      keywords.any? { |kw| text.match?(Regexp.new(Regexp.escape(kw), Regexp::IGNORECASE)) }
     end.keys
   end
 

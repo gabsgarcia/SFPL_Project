@@ -72,25 +72,21 @@ class ExtractProcessoJob < ApplicationJob
     end
   end
 
-  def p
-    @pericia
-  end
-
   def reclamadas_lista
-    linhas = ["1ª Reclamada: #{p.reclamada_1}"]
-    linhas << "2ª Reclamada: #{p.reclamada_2}" if p.reclamada_2.present?
+    linhas = ["1ª Reclamada: #{@pericia.reclamada_1}"]
+    linhas << "2ª Reclamada: #{@pericia.reclamada_2}" if @pericia.reclamada_2.present?
     linhas.join("\n")
   end
 
   def emails_advogados
-    linhas = ["Reclamante: #{p.email_adv_reclamante.presence || "[e-mail não encontrado]"}"]
-    linhas << "1ª Reclamada: #{p.email_adv_reclamada_1.presence || "[e-mail não encontrado]"}"
-    linhas << "2ª Reclamada: #{p.email_adv_reclamada_2}" if p.email_adv_reclamada_2.present?
+    linhas = ["Reclamante: #{@pericia.email_adv_reclamante.presence || "[e-mail não encontrado]"}"]
+    linhas << "1ª Reclamada: #{@pericia.email_adv_reclamada_1.presence || "[e-mail não encontrado]"}"
+    linhas << "2ª Reclamada: #{@pericia.email_adv_reclamada_2}" if @pericia.email_adv_reclamada_2.present?
     linhas.join("\n")
   end
 
   def tipo_pericia_extenso
-    case p.tipo_pericia
+    case @pericia.tipo_pericia
     when "insalubridade"  then "insalubridade"
     when "periculosidade" then "periculosidade"
     when "ambos"          then "insalubridade e periculosidade"
@@ -100,10 +96,10 @@ class ExtractProcessoJob < ApplicationJob
 
   def template_arq1
     <<~DOC
-      Excelentíssimo(a) Juiz(a) do Trabalho da #{p.vara} de #{p.comarca} - SP
+      Excelentíssimo(a) Juiz(a) do Trabalho da #{@pericia.vara} de #{@pericia.comarca} - SP
 
-      Processo nº #{p.numero_processo}
-      Reclamante: #{p.reclamante}
+      Processo nº #{@pericia.numero_processo}
+      Reclamante: #{@pericia.reclamante}
       #{reclamadas_lista}
 
       [NOME DA PERITA], nomeada perito no processo supramencionado, vem à presença
@@ -140,7 +136,7 @@ class ExtractProcessoJob < ApplicationJob
       Prezados Advogados,
 
       Informo que a perícia técnica para apuração de #{tipo_pericia_extenso} no
-      processo nº #{p.numero_processo} (#{p.reclamante} x #{p.reclamada_1}) foi
+      processo nº #{@pericia.numero_processo} (#{@pericia.reclamante} x #{@pericia.reclamada_1}) foi
       marcada para o dia [DATA DA PERÍCIA], às [HORA], a ser realizada em
       [LOCAL DA PERÍCIA].
 
@@ -155,23 +151,23 @@ class ExtractProcessoJob < ApplicationJob
   end
 
   def template_arq3
-    admissao  = p.admissao&.strftime("%d/%m/%Y")  || "[data de admissão]"
-    demissao  = p.demissao&.strftime("%d/%m/%Y")  || "[data de demissão]"
+    admissao  = @pericia.admissao&.strftime("%d/%m/%Y")  || "[data de admissão]"
+    demissao  = @pericia.demissao&.strftime("%d/%m/%Y")  || "[data de demissão]"
 
     <<~DOC
       TERMO DE COMPARECIMENTO
 
-      #{p.vara} / SP – #{p.regiao_trt}
+      #{@pericia.vara} / SP – #{@pericia.regiao_trt}
 
-      Processo nº #{p.numero_processo}
-      Reclamante: #{p.reclamante}
+      Processo nº #{@pericia.numero_processo}
+      Reclamante: #{@pericia.reclamante}
       #{reclamadas_lista}
 
       Objetivo: Perícia de #{tipo_pericia_extenso}
       Data e hora da Perícia: [DATA] às [HORA]
       Endereço: [LOCAL DA PERÍCIA]
       Admissão: #{admissao}  |  Demissão: #{demissao}
-      Função: #{p.funcao_reclamante.presence || "[função]"}
+      Função: #{@pericia.funcao_reclamante.presence || "[função]"}
 
       ─────────────────────────────────────────────────────────────────
       ACOMPANHANTES
@@ -198,8 +194,8 @@ class ExtractProcessoJob < ApplicationJob
   end
 
   def template_arq4
-    admissao = p.admissao&.strftime("%d/%m/%Y")  || "[data de admissão]"
-    demissao = p.demissao&.strftime("%d/%m/%Y")  || "[data de demissão]"
+    admissao = @pericia.admissao&.strftime("%d/%m/%Y")  || "[data de admissão]"
+    demissao = @pericia.demissao&.strftime("%d/%m/%Y")  || "[data de demissão]"
 
     secoes_quesitos = QuesitoResposta::ORIGENS.filter_map do |origem|
       quesitos = @pericia.quesito_respostas.where(origem: origem).order(:numero)
@@ -220,23 +216,23 @@ class ExtractProcessoJob < ApplicationJob
       ANÁLISE DO PERITO
       Avaliação do Perito referente às informações da Reclamada e Reclamante
 
-      #{p.vara} / SP – #{p.regiao_trt}
-      Processo nº #{p.numero_processo}
-      Reclamante: #{p.reclamante}
+      #{@pericia.vara} / SP – #{@pericia.regiao_trt}
+      Processo nº #{@pericia.numero_processo}
+      Reclamante: #{@pericia.reclamante}
       #{reclamadas_lista}
       Admissão: #{admissao}  |  Demissão: #{demissao}
-      Função: #{p.funcao_reclamante.presence || "[função]"}
+      Função: #{@pericia.funcao_reclamante.presence || "[função]"}
 
       ─────────────────────────────────────────────────────────────────
       #{secoes_quesitos.presence || "[Quesitos não encontrados no processo — inserir manualmente]"}
 
       ─────────────────────────────────────────────────────────────────
       DA INICIAL:
-      #{p.resumo_inicial.presence || "[Resumo da inicial não extraído — inserir manualmente]"}
+      #{@pericia.resumo_inicial.presence || "[Resumo da inicial não extraído — inserir manualmente]"}
 
       ─────────────────────────────────────────────────────────────────
       DA CONTESTAÇÃO:
-      #{p.resumo_contestacao.presence || "[Resumo da contestação não extraído — inserir manualmente]"}
+      #{@pericia.resumo_contestacao.presence || "[Resumo da contestação não extraído — inserir manualmente]"}
     DOC
   end
 end
