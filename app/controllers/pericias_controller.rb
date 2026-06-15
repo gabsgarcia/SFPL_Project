@@ -1,6 +1,9 @@
 class PericiasController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_pericia, only: [:show, :edit, :update, :destroy, :review, :review_transcricao, :update_transcricao, :generate_laudo, :generate_pdf]
+  before_action :set_pericia, only: [:show, :edit, :update, :destroy, :review,
+                                     :review_docs_base, :extract_processo,
+                                     :review_transcricao, :update_transcricao,
+                                     :generate_laudo, :generate_pdf]
 
   def index
     @pericias = current_user.pericias.order(created_at: :desc)
@@ -39,6 +42,19 @@ class PericiasController < ApplicationController
   end
 
   def review
+  end
+
+  def review_docs_base
+    @documento_bases = @pericia.documento_bases.ordenados
+  end
+
+  def extract_processo
+    if @pericia.arquivo_processo.attached?
+      ExtractProcessoJob.perform_later(@pericia.id)
+      redirect_to @pericia, notice: "Extração iniciada. Os documentos serão preenchidos em instantes."
+    else
+      redirect_to @pericia, alert: "Faça o upload do PDF do processo antes de extrair."
+    end
   end
 
   def review_transcricao

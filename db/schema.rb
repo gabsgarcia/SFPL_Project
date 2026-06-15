@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_01_120001) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_14_233334) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -40,6 +40,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_01_120001) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "documento_bases", force: :cascade do |t|
+    t.text "conteudo"
+    t.datetime "created_at", null: false
+    t.bigint "pericia_id", null: false
+    t.boolean "revisado", default: false, null: false
+    t.datetime "revisado_em"
+    t.string "tipo", null: false
+    t.datetime "updated_at", null: false
+    t.index ["pericia_id", "tipo"], name: "index_documento_bases_on_pericia_id_and_tipo", unique: true
+    t.index ["pericia_id"], name: "index_documento_bases_on_pericia_id"
   end
 
   create_table "laudo_sections", force: :cascade do |t|
@@ -269,6 +281,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_01_120001) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "documento_bases", "pericias"
   add_foreign_key "laudo_sections", "pericias"
   add_foreign_key "pericia_documents", "pericias"
   add_foreign_key "pericias", "users"
