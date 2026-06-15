@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_14_233334) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_15_013810) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -80,19 +80,28 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_14_233334) do
 
   create_table "pericias", force: :cascade do |t|
     t.date "admissao"
+    t.string "assist_tec_reclamada_1"
+    t.string "assist_tec_reclamada_2"
+    t.string "assist_tec_reclamante"
     t.string "comarca"
     t.datetime "created_at", null: false
     t.datetime "data_pericia"
     t.date "demissao"
+    t.string "email_adv_reclamada_1"
+    t.string "email_adv_reclamada_2"
+    t.string "email_adv_reclamante"
     t.string "funcao_reclamante"
     t.integer "honorarios_salarios"
     t.text "local_pericia"
     t.string "numero_processo"
     t.text "observacoes_perito"
+    t.date "prazo_laudo"
     t.string "reclamada_1"
     t.string "reclamada_2"
     t.string "reclamante"
     t.string "regiao_trt"
+    t.text "resumo_contestacao"
+    t.text "resumo_inicial"
     t.string "status", default: "rascunho", null: false
     t.boolean "tem_biologico", default: false, null: false
     t.boolean "tem_calor", default: false, null: false

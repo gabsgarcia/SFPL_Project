@@ -102,11 +102,15 @@ class PericiasController < ApplicationController
     params.require(:pericia).permit(
       :numero_processo, :vara, :comarca, :regiao_trt,
       :reclamante, :reclamada_1, :reclamada_2, :funcao_reclamante,
-      :admissao, :demissao, :tipo_pericia,
+      :admissao, :demissao, :tipo_pericia, :prazo_laudo,
       :data_pericia, :local_pericia,
+      :email_adv_reclamante, :email_adv_reclamada_1, :email_adv_reclamada_2,
+      :assist_tec_reclamante, :assist_tec_reclamada_1, :assist_tec_reclamada_2,
+      :resumo_inicial, :resumo_contestacao,
       :tem_ruido, :tem_calor, :tem_quimico, :tem_biologico,
       :tem_eletricidade, :tem_inflamavel, :tem_ergonomia,
-      :honorarios_salarios, :observacoes_perito
+      :honorarios_salarios, :observacoes_perito,
+      :arquivo_processo
     )
   end
 end
