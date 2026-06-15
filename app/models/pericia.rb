@@ -33,10 +33,12 @@ class Pericia < ApplicationRecord
   }.freeze
 
   validates :numero_processo, presence: true
-  validates :reclamante, presence: true
-  validates :reclamada_1, presence: true
   validates :tipo_pericia, inclusion: { in: TIPOS_PERICIA }, allow_nil: true
   validates :status, inclusion: { in: STATUSES }
+  validates :arquivo_processo,
+            attached: true,
+            content_type: { in: "application/pdf", message: "deve ser um PDF" },
+            on: :create
 
   validate :transicao_de_status_valida, if: :status_changed?
 

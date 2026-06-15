@@ -19,7 +19,8 @@ class PericiasController < ApplicationController
   def create
     @pericia = current_user.pericias.build(pericia_params)
     if @pericia.save
-      redirect_to @pericia, notice: "Perícia criada com sucesso."
+      ExtractProcessoJob.perform_later(@pericia.id)
+      redirect_to @pericia, notice: "Processo enviado. Extraindo dados automaticamente — aguarde alguns instantes."
     else
       render :new, status: :unprocessable_entity
     end
