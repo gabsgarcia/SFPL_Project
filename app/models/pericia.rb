@@ -21,15 +21,15 @@ class Pericia < ApplicationRecord
   TIPOS_PERICIA = %w[insalubridade periculosidade ambos].freeze
 
   TRANSICOES_VALIDAS = {
-    "novo"                   => %w[extraindo_dados],
-    "extraindo_dados"        => %w[docs_base_prontos erro],
-    "docs_base_prontos"      => %w[aguardando_visita],
-    "aguardando_visita"      => %w[processando_pos_visita],
+    "novo" => %w[extraindo_dados],
+    "extraindo_dados" => %w[docs_base_prontos erro],
+    "docs_base_prontos" => %w[aguardando_visita extraindo_dados],
+    "aguardando_visita" => %w[processando_pos_visita extraindo_dados],
     "processando_pos_visita" => %w[pre_laudo_em_revisao erro],
-    "pre_laudo_em_revisao"   => %w[pre_laudo_aprovado processando_pos_visita],
-    "pre_laudo_aprovado"     => %w[concluido],
-    "concluido"              => [],
-    "erro"                   => %w[novo extraindo_dados processando_pos_visita]
+    "pre_laudo_em_revisao" => %w[pre_laudo_aprovado processando_pos_visita],
+    "pre_laudo_aprovado" => %w[concluido],
+    "concluido" => [],
+    "erro" => %w[novo extraindo_dados processando_pos_visita]
   }.freeze
 
   validates :numero_processo, presence: true

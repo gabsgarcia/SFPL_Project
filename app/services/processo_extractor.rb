@@ -9,8 +9,8 @@ class ProcessoExtractor
   # ── System prompts por tipo de extração ──────────────────────────────────────
 
   PROMPT_CAPA = <<~PROMPT
-    Você analisa capas e cabeçalhos de processos judiciais trabalhistas brasileiros.
-    Extraia os dados abaixo do texto e responda APENAS com JSON válido, sem markdown.
+    Você analisa capas de processos judiciais trabalhistas brasileiros gerados pelo sistema PJe.
+    Extraia os dados abaixo e responda APENAS com JSON válido, sem markdown, sem texto adicional.
 
     Schema esperado:
     {
@@ -23,14 +23,23 @@ class ProcessoExtractor
       "reclamada_2": string ou null
     }
 
-    Exemplos de formatos comuns:
-    - Número: "1001760-11.2025.5.02.0292"
-    - Vara: "2ª Vara do Trabalho de Franco da Rocha"
-    - TRT: "TRT da 2ª Região" ou "TRT 02ª Região"
-    - Reclamante: nome completo em maiúsculas após "RECLAMANTE:" ou "AUTOR:"
-    - Reclamada: nome após "RECLAMADO:", "RÉ:" ou "1ª RECLAMADA:"
+    Formato típico da capa PJe (o marcador PAGINA_CAPA_PROCESSO_PJE pode aparecer no texto):
+      RECLAMANTE: NOME COMPLETO DO TRABALHADOR
+      ADVOGADO: NOME DO ADVOGADO DO RECLAMANTE   ← ignorar neste JSON
+      RECLAMADO: NOME DA EMPRESA
+      ADVOGADO: NOME DO ADVOGADO DA EMPRESA      ← ignorar neste JSON
+      PERITO: NOME DO PERITO                     ← ignorar neste JSON
 
-    Se um campo não estiver presente, use null.
+    Regras:
+    - reclamante: nome após 'RECLAMANTE:' ou 'AUTOR:' (sempre em maiúsculas no PJe)
+    - reclamada_1: nome após 'RECLAMADO:', 'RECLAMADA:', '1ª RECLAMADA:', 'RÉ:' ou '1º RECLAMADO:'
+    - reclamada_2: nome após '2ª RECLAMADA:' ou '2º RECLAMADO:' — null se não houver
+    - numero_processo: padrão NNNNNNN-NN.NNNN.N.NN.NNNN (pode ter sufixo como '-1')
+    - vara: buscar por 'Vara do Trabalho', 'VT', número ordinal + 'Vara'
+    - comarca: cidade onde fica a vara (ex: 'Franco da Rocha', 'São Paulo')
+    - regiao_trt: buscar por 'TRT', 'Tribunal Regional do Trabalho', número da região
+
+    Se um campo não estiver presente no texto, use null.
   PROMPT
 
   PROMPT_DECISAO = <<~PROMPT
@@ -49,12 +58,19 @@ class ProcessoExtractor
       "assist_tec_reclamada_2": string ou null
     }
 
-    Dicas:
-    - tipo_pericia: busque por "insalubridade", "periculosidade" ou ambos nas ordens periciais
-    - prazo_laudo: busque por "prazo de X dias", "até o dia", "entregar até" — converta para YYYY-MM-DD
-    - e-mails: aparecem após "e-mail:" ou "endereço eletrônico:" na decisão do juiz
-    - assistentes técnicos: nomes após "assistente técnico", "indicando como assistente"
-    - Se reclamada_2 não existir, use null
+    Regras:
+    - tipo_pericia: buscar 'insalubridade', 'periculosidade' ou ambos no despacho de nomeação do perito.
+      Se o juiz determinar ambas as apurações, use 'ambos'.
+    - prazo_laudo: buscar 'prazo de X dias', 'até o dia', 'entregar até', 'prazo para apresentação'.
+      Converta para YYYY-MM-DD. Se for 'X dias corridos', some ao prazo citado.
+    - e-mails: no PJe aparecem no despacho de nomeação do perito em formatos como:
+        'e-mail: nome@exemplo.com.br'
+        'endereço eletrônico: nome@exemplo.com.br'
+        'ao endereço eletrônico nome@exemplo.com.br'
+      Associe o e-mail ao advogado da parte correspondente mencionada antes dele.
+    - assistentes técnicos: nomes após 'assistente técnico', 'indicando como assistente',
+      'AT do reclamante', 'AT da reclamada'.
+    - Se reclamada_2 não existir, use null em todos os campos _2.
 
     Se um campo não estiver presente, use null.
   PROMPT
@@ -229,16 +245,26 @@ class ProcessoExtractor
   end
 
   def chamar_claude(system_prompt, conteudo)
+    Rails.logger.info("[ProcessoExtractor] Enviando chunk de #{conteudo.length} chars ao Claude")
     chat = RubyLLM.chat(model: "claude-sonnet-4-6")
     chat.with_instructions(system_prompt)
     response = chat.ask(conteudo)
-    JSON.parse(response.content)
+    Rails.logger.info("[ProcessoExtractor] Resposta recebida: #{response.content&.first(300)}")
+    JSON.parse(limpar_json(response.content))
   rescue JSON::ParserError => e
-    Rails.logger.error("[ProcessoExtractor] JSON inválido: #{e.message}")
+    Rails.logger.error("[ProcessoExtractor] JSON invalido: #{e.message}")
+    Rails.logger.error("[ProcessoExtractor] Resposta bruta: #{response&.content&.first(500)}")
     {}
   rescue => e
     Rails.logger.error("[ProcessoExtractor] Erro na chamada ao Claude: #{e.message}")
     {}
+  end
+
+  def limpar_json(texto)
+    texto.to_s.strip
+         .gsub(/\A```(?:json)?\s*/m, "")
+         .gsub(/\s*```\z/m, "")
+         .strip
   end
 
   # ── Extratores por seção ──────────────────────────────────────────────────────

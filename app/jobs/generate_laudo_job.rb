@@ -11,7 +11,7 @@ class GenerateLaudoJob < ApplicationJob
       service.generate_all
     end
   rescue => e
-    pericia.update_column(:status, "erro")
+    pericia&.update_column(:status, "erro") # update_column intencional: bypassa state machine para garantir log de erro
     raise e
   end
 end

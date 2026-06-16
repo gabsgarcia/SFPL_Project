@@ -80,10 +80,10 @@
                       class: "btn btn-success btn-sm" %>
               <% end %>
               <% if doc.exporta_pdf? %>
-                <span class="btn btn-outline-secondary btn-sm disabled"
-                      title="Exportação de PDF disponível em breve">
-                  Exportar PDF
-                </span>
+                <%= link_to "Exportar PDF",
+                      export_pdf_pericia_documento_base_path(@pericia, doc),
+                      class: "btn btn-outline-secondary btn-sm",
+                      data: { turbo: false } %>
               <% elsif doc.exporta_texto? %>
                 <button type="button"
                         class="btn btn-outline-secondary btn-sm"

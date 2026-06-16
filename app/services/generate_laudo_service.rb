@@ -109,7 +109,7 @@ class GenerateLaudoService
       Siga as instruções do sistema e use as informações do processo acima.
     PROMPT
 
-    chat = RubyLLM.chat(model: "claude-opus-4-5-20251101")
+    chat = RubyLLM.chat(model: "claude-sonnet-4-6")
     chat.with_instructions(SYSTEM_PROMPT)
     response = chat.ask(prompt_usuario)
     response.content

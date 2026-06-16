@@ -9,6 +9,7 @@ Rails.application.routes.draw do
     resources :documento_bases, only: [:show, :edit, :update] do
       member do
         post :marcar_revisado
+        get  :export_pdf
       end
     end
     resources :pericia_documents, only: [:create, :destroy]
