@@ -3,7 +3,7 @@ class PericiasController < ApplicationController
   before_action :set_pericia, only: [:show, :edit, :update, :destroy, :review,
                                      :review_docs_base, :extract_processo,
                                      :review_transcricao, :update_transcricao,
-                                     :generate_laudo, :generate_pdf]
+                                     :generate_laudo, :generate_pdf, :confirmar_fase1]
 
   def index
     @pericias = current_user.pericias.order(created_at: :desc)
@@ -87,6 +87,17 @@ class PericiasController < ApplicationController
     @pericia.update!(status: "processando_pos_visita")
     GenerateLaudoJob.perform_later(@pericia.id)
     redirect_to @pericia, notice: "Geração do laudo iniciada. Isso pode levar alguns minutos."
+  end
+
+  def confirmar_fase1
+    docs = @pericia.documento_bases
+    unless docs.count == 4 && docs.all?(&:revisado?)
+      return redirect_to review_docs_base_pericia_path(@pericia),
+                         alert: "Revise todos os 4 documentos antes de confirmar."
+    end
+
+    @pericia.update!(status: "aguardando_visita")
+    redirect_to @pericia, notice: "Fase 1 concluída. Documentos enviados — aguardando a visita pericial."
   end
 
   def generate_pdf

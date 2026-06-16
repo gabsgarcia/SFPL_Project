@@ -11,11 +11,18 @@ class DocumentoBasesController < ApplicationController
 
   def update
     if @documento_base.update(documento_base_params)
+      @documento_base.marcar_revisado!
       redirect_to review_docs_base_pericia_path(@pericia),
-                  notice: "#{@documento_base.label} atualizado."
+                  notice: "#{@documento_base.label} salvo e marcado como revisado."
     else
       render :edit, status: :unprocessable_entity
     end
+  end
+
+  def marcar_revisado
+    @documento_base.marcar_revisado!
+    redirect_to review_docs_base_pericia_path(@pericia),
+                notice: "#{@documento_base.label} marcado como revisado."
   end
 
   private

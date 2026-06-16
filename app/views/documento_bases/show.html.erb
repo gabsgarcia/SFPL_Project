@@ -1,0 +1,47 @@
+<div class="container mt-4">
+
+  <%# Cabeçalho %>
+  <div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+      <h1 class="h3 mb-1"><%= @documento_base.label %></h1>
+      <p class="text-muted mb-0">
+        <%= @pericia.numero_processo %> &mdash;
+        <%= @pericia.reclamante.presence || "Reclamante não identificado" %>
+      </p>
+    </div>
+    <div class="d-flex gap-2">
+      <%= link_to "Voltar à revisão", review_docs_base_pericia_path(@pericia), class: "btn btn-outline-secondary btn-sm" %>
+      <%= link_to "Editar", edit_pericia_documento_base_path(@pericia, @documento_base), class: "btn btn-outline-primary btn-sm" %>
+      <% unless @documento_base.revisado? %>
+        <%= button_to "Marcar como revisado",
+              marcar_revisado_pericia_documento_base_path(@pericia, @documento_base),
+              method: :post,
+              class: "btn btn-success btn-sm" %>
+      <% end %>
+    </div>
+  </div>
+
+  <%# Status de revisão %>
+  <div class="mb-3">
+    <% if @documento_base.revisado? %>
+      <span class="badge bg-success fs-6">Revisado em <%= l(@documento_base.revisado_em, format: :short) %></span>
+    <% else %>
+      <span class="badge bg-warning text-dark fs-6">Pendente de revisão</span>
+    <% end %>
+  </div>
+
+  <%# Conteúdo do documento %>
+  <div class="card">
+    <div class="card-body p-0">
+      <% if @documento_base.conteudo.present? %>
+        <pre class="p-4 mb-0"
+             style="white-space: pre-wrap; font-family: 'Courier New', monospace; font-size: 0.9rem; line-height: 1.7; background: transparent;"><%=
+          @documento_base.conteudo
+        %></pre>
+      <% else %>
+        <div class="p-4 text-muted">Documento ainda sem conteúdo.</div>
+      <% end %>
+    </div>
+  </div>
+
+</div>

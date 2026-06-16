@@ -6,7 +6,11 @@ Rails.application.routes.draw do
   resource :profile, only: [:show, :edit, :update]
 
   resources :pericias do
-    resources :documento_bases, only: [:show, :edit, :update]
+    resources :documento_bases, only: [:show, :edit, :update] do
+      member do
+        post :marcar_revisado
+      end
+    end
     resources :pericia_documents, only: [:create, :destroy]
     resources :laudo_sections, only: [:update]
     resources :quesito_respostas, only: [:update]
@@ -17,6 +21,7 @@ Rails.application.routes.draw do
       get   :review_transcricao
       patch :update_transcricao
       post  :generate_laudo
+      post  :confirmar_fase1
       post  :generate_pdf
     end
   end
