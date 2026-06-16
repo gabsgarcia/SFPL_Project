@@ -11,7 +11,7 @@ e preenche automaticamente os documentos de cada fase da perícia.
 
 - **Ruby 3.3.5 / Rails 8.1**
 - **PostgreSQL**
-- **ruby_llm ~> 1.2.0** — chamadas ao Claude (Anthropic) — JÁ INSTALADO
+- **ruby_llm ~> 1.16** — chamadas ao Claude (Anthropic) — JÁ INSTALADO
 - **Devise** — autenticação — JÁ INSTALADO
 - **Active Storage + Cloudinary** — uploads — JÁ INSTALADO
 - **Solid Queue** — jobs assíncronos — JÁ INSTALADO
@@ -356,20 +356,8 @@ campos:
 - [x] `pericia_documents` — model `PericiaDocument`
 - [x] `laudo_sections` — model `LaudoSection`
 - [x] `quesito_respostas` — model `QuesitoResposta`
-- [x] `users` — Devise
-
-### Campos ainda faltando na tabela `pericias` (próxima migration)
-
-```bash
-# Adicionar via migration (não recriar a tabela):
-rails generate migration AddCamposFase1ToPericias \
-  email_adv_reclamante:string \
-  email_adv_reclamada_1:string email_adv_reclamada_2:string \
-  assist_tec_reclamante:string \
-  assist_tec_reclamada_1:string assist_tec_reclamada_2:string \
-  prazo_laudo:date \
-  resumo_inicial:text resumo_contestacao:text
-```
+- [x] `users` — Devise + campos `first_name`, `last_name`, `titulo_profissional`
+- [x] Campos Fase 1 em `pericias`: `email_adv_*`, `assist_tec_*`, `prazo_laudo`, `resumo_inicial`, `resumo_contestacao`
 
 ---
 
@@ -381,7 +369,12 @@ rails generate migration AddCamposFase1ToPericias \
 ```ruby
 # config/routes.rb — estado atual
 resources :pericias do
-  resources :documento_bases,   only: [:show, :edit, :update]  # ARQ 1-4
+  resources :documento_bases, only: [:show, :edit, :update] do
+    member do
+      post :marcar_revisado     # marca ARQ como revisado sem editar
+      get  :export_pdf          # exporta ARQ como PDF (WickedPdf)
+    end
+  end
   resources :pericia_documents, only: [:create, :destroy]       # arquivos da visita
   resources :laudo_sections,    only: [:update]
   resources :quesito_respostas, only: [:update]
@@ -390,6 +383,7 @@ resources :pericias do
     # Fase 1
     post :extract_processo       # dispara ExtractProcessoJob
     get  :review_docs_base       # revisão dos ARQ 1-4
+    post :confirmar_fase1        # valida revisão e avança para aguardando_visita
 
     # Fase 2
     get   :review_transcricao    # revisão da transcrição limpa
@@ -860,17 +854,18 @@ Quando a plataforma crescer para múltiplos usuários, adicionar:
 2. **Jobs sempre via Solid Queue** — não usar outros adaptadores
 3. **Uploads via Active Storage** — Cloudinary já configurado
 4. **ruby_llm configurado** — usar `RubyLLM.chat(model: "claude-sonnet-4-6")` para chamar o Claude
+   - API correta: `chat = RubyLLM.chat(model: "claude-sonnet-4-6")` → `chat.with_instructions(prompt)` → `response = chat.ask(conteudo)` → `response.content`
+   - O Claude pode retornar JSON envolto em ` ```json ``` ` — sempre remover o wrapper antes de `JSON.parse`
 5. **Stimulus para interatividade** — não usar JS vanilla fora de controllers
+   - `poller_controller.js`: usa `Turbo.visit()` (global, não importar de `@hotwired/turbo`)
 6. **Turbo Frames para atualizações parciais** — especialmente na revisão
 7. **PDF do laudo final nunca antes de todas as seções revisadas**
 8. **Status como state machine** — validar transições no model
+   - `update_column(:status, "erro")` é intencional nos rescues dos jobs — bypassa state machine para garantir registro do erro
 9. **Textos podem ser longos** — sempre usar `text`, nunca `string` para conteúdo
 10. **Processar PDF do processo em chunks** — nunca enviar o arquivo inteiro ao Claude
 11. **Jobs granulares** — um job por seção do laudo, não tudo de uma vez
-12. **ARQ 1-4 têm dois momentos distintos:**
-    - **Fase 1:** agente preenche automaticamente, perito edita na plataforma,
-      depois exporta como PDF (ARQ 1, 3, 4) ou texto de e-mail (ARQ 2)
-      para uso ANTES da visita — protocolar no PJe, enviar aos advogados,
-      imprimir para levar na diligência
-    - **Fase 2:** ARQ 3 e ARQ 4 voltam preenchidos pelo perito após a visita
-      (upload do scan ou digitação na plataforma) e alimentam o pré-laudo
+12. **ApplicationJob** tem `discard_on RecordNotFound/DeserializationError` e `retry_on Deadlock` — não reconfigurar por job individual salvo necessidade específica
+13. **ARQ 1-4 têm dois momentos distintos:**
+    - **Fase 1:** agente preenche automaticamente (nome/email/título da perita vêm de `user.full_name`, `user.email`, `user.titulo_profissional`), perito edita na plataforma, depois exporta como PDF (ARQ 1, 3, 4) ou texto de e-mail (ARQ 2)
+    - **Fase 2:** ARQ 3 e ARQ 4 voltam preenchidos pelo perito após a visita (upload do scan ou digitação na plataforma) e alimentam o pré-laudo

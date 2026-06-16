@@ -23,7 +23,7 @@ O perito trabalha em três fases bem distintas:
 | Backend | Ruby 3.3.5 / Rails 8.1 |
 | Banco de dados | PostgreSQL |
 | Autenticação | Devise |
-| IA | ruby_llm ~> 1.2 (Claude / Anthropic) |
+| IA | ruby_llm ~> 1.16 (Claude / Anthropic) |
 | Upload de arquivos | Active Storage + Cloudinary |
 | Jobs assíncronos | Solid Queue |
 | Frontend | Bootstrap 5.3 + Stimulus + Turbo (Hotwire) |
@@ -56,10 +56,10 @@ User
 ### Status do processo (`Pericia#status`)
 
 ```
-rascunho → documentos_ok → agendado → vistoria_feita → processando → em_revisao → concluido
+novo → extraindo_dados → docs_base_prontos → aguardando_visita
+     → processando_pos_visita → pre_laudo_em_revisao → pre_laudo_aprovado → concluido
+                                                                           ↑ erro (de qualquer estado)
 ```
-
-> Os status serão alinhados ao fluxo de 3 fases na Phase 4.
 
 ---
 
@@ -168,9 +168,10 @@ ANTHROPIC_API_KEY=sk-ant-...
   - `ExtractProcessoJob` — orquestra extração, quesitos e ARQ 1-4
   - Status states alinhados ao fluxo de 3 fases (9 estados + transições validadas)
   - `PericiaDocument` com tipos `arq3_preenchido` e `arq4_preenchido`
-- [ ] **Phase 5** — Interface da Fase 1: upload do processo, disparo da extração,
-  revisão dos ARQ 1-4 com edição inline, exportação PDF/email, confirmação de envio
-- [ ] **Phase 6** — Geração do PDF final do laudo
+- [x] **Phase 5** — Interface da Fase 1: revisão dos ARQ 1-4 com edição inline,
+  exportação PDF/email, confirmação de envio, polling automático de status,
+  título profissional da perita nos documentos, correções do agente de extração
+- [ ] **Phase 6** — Fase 2 UI: upload pós-visita, revisão do pré-laudo seção a seção, geração do PDF final
 
 ---
 
