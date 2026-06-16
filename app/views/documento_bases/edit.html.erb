@@ -1,0 +1,52 @@
+<div class="container mt-4">
+
+  <%# Cabeçalho %>
+  <div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+      <h1 class="h3 mb-1">Editar — <%= @documento_base.label %></h1>
+      <p class="text-muted mb-0">
+        <%= @pericia.numero_processo %> &mdash;
+        <%= @pericia.reclamante.presence || "Reclamante não identificado" %>
+      </p>
+    </div>
+    <%= link_to "Cancelar", review_docs_base_pericia_path(@pericia), class: "btn btn-outline-secondary btn-sm" %>
+  </div>
+
+  <%# Aviso sobre o que acontece ao salvar %>
+  <div class="alert alert-info py-2 mb-4">
+    Ao salvar, o documento será marcado automaticamente como <strong>revisado</strong>.
+  </div>
+
+  <%# Formulário %>
+  <%= simple_form_for [@pericia, @documento_base],
+        data: { controller: "autoresize" } do |f| %>
+
+    <%= f.error_notification %>
+
+    <div class="card mb-3">
+      <div class="card-body p-0">
+        <%= f.input :conteudo,
+              label: false,
+              as: :text,
+              input_html: {
+                rows: 30,
+                class: "form-control border-0 rounded font-monospace",
+                style: "font-size: 0.9rem; line-height: 1.7; resize: vertical; min-height: 500px;",
+                data: { autoresize_target: "textarea", action: "input->autoresize#input" }
+              } %>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center">
+      <%= link_to "Cancelar", review_docs_base_pericia_path(@pericia), class: "btn btn-outline-secondary" %>
+      <div class="d-flex gap-2">
+        <%= link_to "Visualizar sem salvar",
+              pericia_documento_base_path(@pericia, @documento_base),
+              class: "btn btn-outline-primary btn-sm" %>
+        <%= f.button :submit, "Salvar e marcar como revisado", class: "btn btn-primary" %>
+      </div>
+    </div>
+
+  <% end %>
+
+</div>

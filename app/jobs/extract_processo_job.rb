@@ -25,7 +25,7 @@ class ExtractProcessoJob < ApplicationJob
     @pericia.update!(status: "docs_base_prontos")
   rescue => e
     Rails.logger.error("[ExtractProcessoJob] pericia_id=#{pericia_id} erro=#{e.message}")
-    @pericia&.update_column(:status, "erro")
+    @pericia&.update_column(:status, "erro") # update_column intencional: bypassa state machine para garantir log de erro
     raise e
   end
 
@@ -94,6 +94,18 @@ class ExtractProcessoJob < ApplicationJob
     end
   end
 
+  def nome_perita
+    @pericia.user.full_name
+  end
+
+  def titulo_perita
+    @pericia.user.titulo_profissional.presence || "[TÍTULO / CRQ / CREA]"
+  end
+
+  def email_perita
+    @pericia.user.email
+  end
+
   def template_arq1
     <<~DOC
       Excelentíssimo(a) Juiz(a) do Trabalho da #{@pericia.vara} de #{@pericia.comarca} - SP
@@ -102,7 +114,7 @@ class ExtractProcessoJob < ApplicationJob
       Reclamante: #{@pericia.reclamante}
       #{reclamadas_lista}
 
-      [NOME DA PERITA], nomeada perito no processo supramencionado, vem à presença
+      #{nome_perita}, #{titulo_perita}, nomeada perita no processo supramencionado, vem à presença
       de V. Exa. informar que a perícia técnica para apuração de #{tipo_pericia_extenso}
       foi marcada para o dia [DATA DA PERÍCIA], às [HORA], tendo sido encaminhado
       e-mail aos advogados das partes:
@@ -113,8 +125,8 @@ class ExtractProcessoJob < ApplicationJob
       Pede deferimento.
 
       [LOCAL], [DATA]
-      [NOME DA PERITA]
-      [TÍTULO / CRQ / CREA]
+      #{nome_perita}
+      #{titulo_perita}
     DOC
   end
 
@@ -142,11 +154,11 @@ class ExtractProcessoJob < ApplicationJob
 
       #{docs_solicitados}
       Solicito que os documentos sejam disponibilizados até o dia da perícia.
-      Em caso de dúvidas, entrar em contato pelo e-mail [E-MAIL DA PERITA].
+      Em caso de dúvidas, entrar em contato pelo e-mail #{email_perita}.
 
       Atenciosamente,
-      [NOME DA PERITA]
-      Perita Judicial
+      #{nome_perita}
+      #{titulo_perita}
     DOC
   end
 

@@ -11,6 +11,11 @@
     <div class="form-inputs">
       <%= f.input :first_name, label: "Nome", required: true %>
       <%= f.input :last_name, label: "Sobrenome", required: true %>
+      <%= f.input :titulo_profissional,
+            label: "Título profissional",
+            placeholder: "Ex: Engenheira de Segurança do Trabalho — CRQ 12345",
+            hint: "Usado na assinatura dos documentos periciais (ARQ 1 e ARQ 2).",
+            required: false %>
 
       <div data-controller="photo-crop">
         <div class="mb-3">

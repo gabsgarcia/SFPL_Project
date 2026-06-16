@@ -82,15 +82,25 @@
               extract_processo_pericia_path(@pericia),
               method: :post,
               class: "btn btn-primary btn-sm",
+              data: { disable_with: "Iniciando..." },
               form: { data: { turbo_confirm: "Iniciar extração? O agente irá ler o PDF e preencher os documentos automaticamente." } } %>
       <% when "extraindo_dados" %>
-        <div class="d-flex align-items-center gap-2 text-muted">
+        <div data-controller="poller" data-poller-interval-value="4000"
+             class="d-flex align-items-center gap-2 text-muted">
           <div class="spinner-border spinner-border-sm" role="status"></div>
           <span>Extraindo dados do processo — aguarde alguns instantes...</span>
         </div>
       <% when "docs_base_prontos" %>
         <p class="text-muted mb-3">Dados extraídos. Revise os 4 documentos antes de confirmar o envio.</p>
-        <%= link_to "Revisar documentos (ARQ 1-4)", review_docs_base_pericia_path(@pericia), class: "btn btn-primary btn-sm" %>
+        <div class="d-flex gap-2">
+          <%= link_to "Revisar documentos (ARQ 1-4)", review_docs_base_pericia_path(@pericia), class: "btn btn-primary btn-sm" %>
+          <%= button_to "Reprocessar PDF",
+                extract_processo_pericia_path(@pericia),
+                method: :post,
+                class: "btn btn-outline-secondary btn-sm",
+                data: { disable_with: "Iniciando..." },
+                form: { data: { turbo_confirm: "Reprocessar vai sobrescrever os documentos atuais. Continuar?" } } %>
+        </div>
       <% when "aguardando_visita" %>
         <div class="alert alert-success py-2 mb-0">
           Documentos enviados. Aguardando a visita pericial.
@@ -102,7 +112,8 @@
         <%= button_to "Tentar novamente",
               extract_processo_pericia_path(@pericia),
               method: :post,
-              class: "btn btn-warning btn-sm" %>
+              class: "btn btn-warning btn-sm",
+              data: { disable_with: "Iniciando..." } %>
       <% else %>
         <p class="text-muted mb-0">Fase 1 concluída.</p>
       <% end %>

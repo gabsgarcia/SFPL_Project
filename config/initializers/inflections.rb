@@ -18,4 +18,5 @@
 ActiveSupport::Inflector.inflections(:en) do |inflect|
   inflect.irregular "pericia", "pericias"
   inflect.irregular "quesito_resposta", "quesito_respostas"
+  inflect.irregular "documento_base", "documento_bases"
 end
